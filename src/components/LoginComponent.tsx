@@ -9,7 +9,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #232b3e;
+  /* background: #232b3e; */
 `;
 
 type FieldType = {
@@ -39,8 +39,8 @@ export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
 
   const inputStyle = React.useMemo(
     () => ({
-      background: "#232b3e",
-      color: "#fff",
+      // background: "#232b3e",
+      // color: "#fff",
       border: "1px solid #3e4a6b",
     }),
     []

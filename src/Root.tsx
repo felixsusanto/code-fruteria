@@ -34,7 +34,7 @@ const GlobalStyle = createGlobalStyle`
   .theme-dark {
     --primary-color: #81C784;
     --secondary-color: #FFD54F;
-    --background-color: #222;
+    --background-color: #232b3e;
     --text-color: #F5F5F5;
     --border-radius: 4px;
 
@@ -93,12 +93,17 @@ const Root: React.FC = () => {
 
   useEffect(() => {
     localStorage.setItem(THEME_KEY, theme);
+    document.body.classList.remove("theme-dark", "theme-light");
+    document.body.classList.add(`theme-${theme}`);
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, loggedIn, setLoggedIn }}>
       <ConfigProvider
         theme={{
+          token: {
+            colorBgBase: theme === "dark" ? "#232b3e" : "#F5F5F5",
+          },
           algorithm:
             theme === "dark"
               ? antdTheme.darkAlgorithm

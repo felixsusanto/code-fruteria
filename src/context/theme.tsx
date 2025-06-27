@@ -13,8 +13,12 @@ export const getInitialTheme = () => {
 interface ThemeContextProps {
   theme: ThemeOption;
   setTheme: (v: ThemeOption) => void;
+  loggedIn: boolean;
+  setLoggedIn: (v: boolean) => void;
 }
 export const ThemeContext = React.createContext<ThemeContextProps>({
   theme: "dark",
   setTheme: () => {},
+  loggedIn: false,
+  setLoggedIn: () => {},
 });

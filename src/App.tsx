@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import type { FC, DragEvent } from "react";
 import { Switch } from "antd";
 import { SunFilled, MoonFilled } from "@ant-design/icons";
 import styled from "styled-components";
-import { THEME_KEY, ThemeContext } from "./context/theme";
+import { ThemeContext } from "./context/theme";
+import UserProfile from "./components/UserProfile";
 
 /**
  * Represents an open panel's state and position.
@@ -36,7 +37,7 @@ export const App: FC = () => {
   const [dropCell, setDropCell] = useState<{ row: number; col: number } | null>(
     null
   );
-  const { theme, setTheme } = React.useContext(ThemeContext);
+  const { theme, setTheme, setLoggedIn } = React.useContext(ThemeContext);
   // const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme());
 
   // Drag from nav: set key in dataTransfer
@@ -185,17 +186,6 @@ export const App: FC = () => {
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      <SwitchWrapper>
-        <Switch
-          checked={theme === "dark"}
-          onChange={(checked) => {
-            setTheme(checked ? "dark" : "light");
-          }}
-          checkedChildren={<MoonFilled />}
-          unCheckedChildren={<SunFilled />}
-          defaultChecked
-        />
-      </SwitchWrapper>
       {/* Navigation Bar */}
       {navOpen && (
         <nav
@@ -276,147 +266,140 @@ export const App: FC = () => {
         </nav>
       )}
       {/* Panel Area */}
-      <MainWorkspace
-        onDrop={onMainDrop}
-        onDragOver={onMainDragOver}
-        onGridDropInfo={handleGridDropInfo}
-        gridRows={GRID_ROWS}
-        gridCols={GRID_COLS}
+
+      <main
+        style={{
+          flex: 1,
+          position: "relative",
+          // background: "#232b3e",
+          overflow: "hidden",
+          height: "100%",
+          width: "100%",
+        }}
       >
-        <main
+        {/* Top nav branding */}
+        <div
           style={{
-            flex: 1,
-            position: "relative",
-            background: "#232b3e",
-            overflow: "hidden",
-            height: "100%",
             width: "100%",
+            background: "linear-gradient(90deg, #2b3556 0%, #3e4a6b 100%)",
+            color: "#fff",
+            padding: "0.5rem 1.5rem",
+            fontWeight: 600,
+            fontSize: 20,
+            letterSpacing: 1,
+            position: "sticky",
+            top: 0,
+            zIndex: 2000,
+            display: "flex",
+            alignItems: "center",
+            boxShadow: "0 2px 8px #0002",
+            minHeight: NAV_BAR_HEIGHT,
+            borderBottom: "1px solid #3e4a6b",
           }}
         >
-          {/* Top nav branding */}
-          <div
+          {/* Hamburger/X icon */}
+          <button
+            onClick={() => setNavOpen((v) => !v)}
             style={{
-              width: "100%",
-              background: "linear-gradient(90deg, #2b3556 0%, #3e4a6b 100%)",
+              background: "transparent",
+              border: "none",
               color: "#fff",
-              padding: "0.5rem 1.5rem",
-              fontWeight: 600,
-              fontSize: 20,
-              letterSpacing: 1,
-              position: "sticky",
-              top: 0,
-              zIndex: 2000,
+              fontSize: 26,
+              cursor: "pointer",
+              marginRight: 20,
               display: "flex",
               alignItems: "center",
-              boxShadow: "0 2px 8px #0002",
-              minHeight: NAV_BAR_HEIGHT,
-              borderBottom: "1px solid #3e4a6b",
+              padding: 0,
+              height: 40,
+              width: 40,
+              borderRadius: 8,
+              transition: "background 0.2s",
+              boxShadow: navOpen ? "0 2px 8px #0002" : undefined,
+            }}
+            aria-label="Toggle navigation"
+          >
+            <span style={{ display: "inline-block", width: 28, height: 28 }}>
+              {navOpen ? (
+                // X icon
+                <svg width="28" height="28" viewBox="0 0 28 28">
+                  <line
+                    x1="7"
+                    y1="7"
+                    x2="21"
+                    y2="21"
+                    stroke="#fff"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                  <line
+                    x1="21"
+                    y1="7"
+                    x2="7"
+                    y2="21"
+                    stroke="#fff"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              ) : (
+                // Hamburger icon
+                <svg width="28" height="28" viewBox="0 0 28 28">
+                  <rect y="6" width="28" height="3" rx="1.5" fill="#fff" />
+                  <rect y="13" width="28" height="3" rx="1.5" fill="#fff" />
+                  <rect y="20" width="28" height="3" rx="1.5" fill="#fff" />
+                </svg>
+              )}
+            </span>
+          </button>
+          {/* App title */}
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontWeight: 700,
+              fontSize: 22,
+              letterSpacing: 2,
+              color: "#fff",
+              textShadow: "0 1px 2px #0006",
+              userSelect: "none",
+              textTransform: "uppercase",
             }}
           >
-            {/* Hamburger/X icon */}
-            <button
-              onClick={() => setNavOpen((v) => !v)}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "#fff",
-                fontSize: 26,
-                cursor: "pointer",
-                marginRight: 20,
-                display: "flex",
-                alignItems: "center",
-                padding: 0,
-                height: 40,
-                width: 40,
-                borderRadius: 8,
-                transition: "background 0.2s",
-                boxShadow: navOpen ? "0 2px 8px #0002" : undefined,
+            fruteria
+          </span>
+          {/* Spacer to push UserProfile to the right */}
+          <div style={{ flex: 1 }} />
+          {/* UserProfile on the right */}
+          <div style={{ marginRight: 32 }}>
+            <UserProfile
+              onLogout={() => {
+                localStorage.removeItem("isLoggedIn");
+                setLoggedIn(false);
               }}
-              aria-label="Toggle navigation"
-            >
-              <span style={{ display: "inline-block", width: 28, height: 28 }}>
-                {navOpen ? (
-                  // X icon
-                  <svg width="28" height="28" viewBox="0 0 28 28">
-                    <line
-                      x1="7"
-                      y1="7"
-                      x2="21"
-                      y2="21"
-                      stroke="#fff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <line
-                      x1="21"
-                      y1="7"
-                      x2="7"
-                      y2="21"
-                      stroke="#fff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                ) : (
-                  // Hamburger icon
-                  <svg width="28" height="28" viewBox="0 0 28 28">
-                    <rect y="6" width="28" height="3" rx="1.5" fill="#fff" />
-                    <rect y="13" width="28" height="3" rx="1.5" fill="#fff" />
-                    <rect y="20" width="28" height="3" rx="1.5" fill="#fff" />
-                  </svg>
-                )}
-              </span>
-            </button>
-            {/* App title */}
-            <span
-              style={{
-                fontFamily: "monospace",
-                fontWeight: 700,
-                fontSize: 22,
-                letterSpacing: 2,
-                color: "#fff",
-                textShadow: "0 1px 2px #0006",
-                userSelect: "none",
-                textTransform: "uppercase",
-              }}
-            >
-              fruteria
-            </span>
-            {/* Spacer to push UserProfile to the right */}
-            <div style={{ flex: 1 }} />
-            {/* UserProfile on the right */}
-            <div style={{ marginRight: 32 }}>
-              <UserProfile
-                onLogout={() => {
-                  localStorage.removeItem("isLoggedIn");
-                  window.dispatchEvent(new Event("login-success"));
-                }}
-                onThemeToggle={() => {}}
-                theme={theme}
-              />
-            </div>
+              onThemeToggle={(checked) => setTheme(checked ? "dark" : "light")}
+              theme={theme}
+            />
           </div>
-          {openPanels.length === 0 ? (
-            <div
-              style={{ color: "#888", textAlign: "center", marginTop: "2rem" }}
-            >
-              No panels open.
-              <br />
-              Drag one from the navigation bar.
-            </div>
-          ) : (
-            openPanels.map((panel) => (
-              <ResizableDraggablePanel
-                {...panel}
-                onClose={() => handleClose(panel.id)}
-                onMove={(dx, dy) => handlePanelMove(panel.id, dx, dy)}
-                onResize={(dw, dh) => handlePanelResize(panel.id, dw, dh)}
-                // Add a prop to indicate dragging for overlay z-index if needed
-              />
-            ))
-          )}
-        </main>
-      </MainWorkspace>
+        </div>
+        {openPanels.length === 0 ? (
+          <div
+            style={{ color: "#888", textAlign: "center", marginTop: "2rem" }}
+          >
+            No panels open.
+            <br />
+            Drag one from the navigation bar.
+          </div>
+        ) : (
+          openPanels.map((panel) => (
+            <ResizableDraggablePanel
+              {...panel}
+              onClose={() => handleClose(panel.id)}
+              onMove={(dx, dy) => handlePanelMove(panel.id, dx, dy)}
+              onResize={(dw, dh) => handlePanelResize(panel.id, dw, dh)}
+              // Add a prop to indicate dragging for overlay z-index if needed
+            />
+          ))
+        )}
+      </main>
     </div>
   );
 };
@@ -458,6 +441,4 @@ const dummy: FC<Record<string, any>> = () => null;
 const TermsIcon = dummy;
 const FruitViewIcon = dummy;
 const AboutIcon = dummy;
-const MainWorkspace = dummy;
-const UserProfile = dummy;
 const ResizableDraggablePanel = dummy;
