@@ -1,11 +1,22 @@
 import React, { useState } from "react";
 import type { FC, DragEvent } from "react";
-import { Switch } from "antd";
-import { SunFilled, MoonFilled } from "@ant-design/icons";
-import styled from "styled-components";
 import { ThemeContext } from "./context/theme";
+import AboutIcon from "./Icons/AboutIcon";
+import TermsIcon from "./Icons/TermsIcon";
+import FruitViewIcon from "./Icons/FruitViewIcon";
 import UserProfile from "./components/UserProfile";
+import { panelList } from "./panels/panelList";
+import AboutPanel from "./panels/AboutPanel";
+import FruitBookPanel from "./panels/FruitBookPanel";
+import { FruitViewPanel } from "./panels/FruitViewPanel";
 
+import { Responsive, WidthProvider, type Layouts } from "react-grid-layout";
+import "/node_modules/react-grid-layout/css/styles.css";
+import "/node_modules/react-resizable/css/styles.css";
+import { Card } from "antd";
+import { produce } from "immer";
+import { CloseOutlined } from "@ant-design/icons";
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
 /**
  * Represents an open panel's state and position.
  */
@@ -20,11 +31,10 @@ type OpenPanel = {
   height: number;
 };
 
-const SwitchWrapper = styled.div`
-  position: absolute;
-  right: 10px;
-  top: 10px;
-`;
+interface Widget {
+  key: string;
+  id: string;
+}
 
 /**
  * Main application component.
@@ -37,6 +47,8 @@ export const App: FC = () => {
   const [dropCell, setDropCell] = useState<{ row: number; col: number } | null>(
     null
   );
+  const [layouts, setLayouts] = useState<Layouts>({ xxs: [] });
+  const [widgets, setWidgets] = useState<Widget[]>([]);
   const { theme, setTheme, setLoggedIn } = React.useContext(ThemeContext);
   // const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme());
 
@@ -48,70 +60,6 @@ export const App: FC = () => {
   const onNavDragStart = (key: string) => (e: DragEvent<HTMLLIElement>) => {
     setDragNavPanelKey(key);
     e.dataTransfer.setData("panelKey", key);
-  };
-
-  /**
-   * Called by MainWorkspace to update container size and drop cell.
-   */
-  const handleGridDropInfo = (info: {
-    cell: { row: number; col: number } | null;
-    size: { width: number; height: number };
-  }) => {
-    setDropCell(info.cell);
-    setContainerSize(info.size);
-  };
-
-  /**
-   * Handles drop event on the main workspace to open a new panel.
-   */
-  const onMainDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const key = e.dataTransfer.getData("panelKey");
-    if (!key) return;
-    const panelDef = panelList.find((p) => p.key === key);
-    if (!panelDef) return;
-    const id = `${key}-${Date.now()}`;
-    let x = 60,
-      y = NAV_BAR_HEIGHT + 10,
-      width = 700,
-      height = 420;
-    if (dropCell && containerSize.width && containerSize.height) {
-      // Subtract nav bar height from available height for grid
-      const availableHeight = containerSize.height - NAV_BAR_HEIGHT;
-      const pos = getGridCellPosition(
-        dropCell.row,
-        dropCell.col,
-        containerSize.width,
-        availableHeight,
-        NAV_BAR_HEIGHT
-      );
-      // Clamp width/height to not exceed window
-      width = Math.min(pos.width, containerSize.width);
-      height = Math.min(pos.height, availableHeight);
-      x = pos.x;
-      y = pos.y;
-    }
-    setOpenPanels([
-      ...openPanels,
-      {
-        id,
-        key: panelDef.key,
-        title: panelDef.title,
-        content: panelDef.content,
-        x,
-        y,
-        width,
-        height,
-      },
-    ]);
-    setDragNavPanelKey(null);
-  };
-
-  /**
-   * Handles drag over event on the main workspace.
-   */
-  const onMainDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
   };
 
   /**
@@ -270,6 +218,8 @@ export const App: FC = () => {
       <main
         style={{
           flex: 1,
+          display: "flex",
+          flexDirection: "column",
           position: "relative",
           // background: "#232b3e",
           overflow: "hidden",
@@ -380,6 +330,75 @@ export const App: FC = () => {
             />
           </div>
         </div>
+        <ResponsiveReactGridLayout
+          isDroppable
+          // compactType={null}
+          rowHeight={70}
+          layouts={layouts}
+          onDropDragOver={() => ({ w: 6, h: 5 })}
+          breakpoints={{ xxs: 0 }}
+          cols={{ xxs: 12 }}
+          measureBeforeMount={false}
+          onDrop={(layout, item, e) => {
+            const event = e as unknown as DragEvent;
+            const id = `${Date.now()}`;
+            const panelType = event.dataTransfer.getData("panelKey");
+            const newItem = { ...item, isDraggable: false, i: id };
+            console.log(layout);
+            setLayouts((prev) => ({
+              xxs: [...prev.xxs, newItem],
+            }));
+            setWidgets((prev) => [...prev, { id, key: panelType }]);
+          }}
+          style={{ flex: 1 }}
+        >
+          {widgets.map((w) => {
+            const mapToComp: Record<string, React.ReactNode> = {
+              fruitbook: <FruitBookPanel />,
+              fruitview: <FruitViewPanel />,
+              about: <AboutPanel />,
+            };
+            const mapToTitle: Record<string, string> = {
+              fruitbook: "Fruit Book",
+              fruitview: "Fruit View",
+              about: "About",
+            };
+            return (
+              <div key={w.id} style={{ overflow: "hidden" }}>
+                <Card
+                  size="small"
+                  style={{ height: "100%" }}
+                  title={mapToTitle[w.key]}
+                  extra={
+                    <CloseOutlined
+                      onClick={() => {
+                        setWidgets((prev) => {
+                          const newW = produce(prev, (draft) =>
+                            draft.filter((o) => o.id !== w.id)
+                          );
+                          return newW;
+                        });
+                        setLayouts((prev) => {
+                          const newW = produce(prev.xxs, (draft) =>
+                            draft.filter((o) => o.i !== w.id)
+                          );
+                          return { xxs: newW };
+                        });
+                      }}
+                    />
+                  }
+                  styles={{
+                    body: {
+                      height: "calc(100% - 38px)",
+                    },
+                  }}
+                >
+                  {mapToComp[w.key]}
+                </Card>
+              </div>
+            );
+          })}
+        </ResponsiveReactGridLayout>
         {openPanels.length === 0 ? (
           <div
             style={{ color: "#888", textAlign: "center", marginTop: "2rem" }}
@@ -403,8 +422,6 @@ export const App: FC = () => {
     </div>
   );
 };
-
-const panelList: { key: string; title: string; content: string }[] = [];
 
 const NAV_BAR_HEIGHT = 56; // px, must match your nav bar minHeight
 
@@ -438,7 +455,4 @@ const getGridCellPosition = (
 };
 
 const dummy: FC<Record<string, any>> = () => null;
-const TermsIcon = dummy;
-const FruitViewIcon = dummy;
-const AboutIcon = dummy;
 const ResizableDraggablePanel = dummy;

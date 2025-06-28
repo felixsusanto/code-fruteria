@@ -70,6 +70,14 @@ const GlobalStyle = createGlobalStyle`
     color: #fff;
     font-size: 1.5em;
   }
+
+  .react-grid-item.react-grid-placeholder {
+    opacity: 1;
+    background-color: rgba(126,199,255,0.32); /* Light blue with transparency */
+    border: 2.5px dashed #7ec7ff; /* Dashed blue border */
+    border-radius: 8px; /* Slightly rounded corners */
+    transition: background 0.1s, border 0.1s; /* Smooth transition on hover/drag */
+  }
 `;
 
 /**
@@ -101,6 +109,11 @@ const Root: React.FC = () => {
     <ThemeContext.Provider value={{ theme, setTheme, loggedIn, setLoggedIn }}>
       <ConfigProvider
         theme={{
+          components: {
+            Card: {
+              bodyPaddingSM: 0,
+            },
+          },
           token: {
             colorBgBase: theme === "dark" ? "#232b3e" : "#F5F5F5",
           },
