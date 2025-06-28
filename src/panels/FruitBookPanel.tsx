@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
+import { Drawer } from "antd";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
@@ -191,7 +192,54 @@ const FruitBook: React.FC = () => {
           />,
           document.body
         )}
+      <Drawer
+        title={`${selectedFruit?.name} Enrichment`}
+        placement="right"
+        closable={false}
+        onClose={() => setSelectedFruit(null)}
+        open={!!selectedFruit}
+        getContainer={false}
+      >
+        <EnrichmentPanel selectedFruit={selectedFruit} />
+      </Drawer>
     </>
+  );
+};
+
+const EnrichmentPanel: React.FC<{
+  selectedFruit: null | Record<string, string>;
+}> = (props) => {
+  const columnDefs = React.useMemo<ColDef[]>(() => {
+    return [
+      {
+        headerName: "Property",
+        field: "property",
+      },
+      {
+        headerName: "Value",
+        field: "value",
+      },
+    ];
+  }, []);
+  const rowData = React.useMemo(
+    () =>
+      props.selectedFruit && [
+        { property: "ID", value: props.selectedFruit.id },
+        { property: "Country", value: props.selectedFruit.country },
+        { property: "Type", value: props.selectedFruit.type },
+        { property: "Status", value: props.selectedFruit.status },
+        { property: "Details", value: props.selectedFruit.details },
+      ],
+    [props.selectedFruit]
+  );
+  return (
+    <div className="ag-theme-alpine" style={{ height: 200 }}>
+      <AgGridReact
+        columnDefs={columnDefs}
+        rowData={rowData}
+        defaultColDef={{ width: 100, flex: 1 }}
+      />
+    </div>
   );
 };
 

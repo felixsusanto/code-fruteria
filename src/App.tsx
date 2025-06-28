@@ -15,7 +15,7 @@ import "/node_modules/react-grid-layout/css/styles.css";
 import "/node_modules/react-resizable/css/styles.css";
 import { Card } from "antd";
 import { produce } from "immer";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, DragOutlined } from "@ant-design/icons";
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 /**
  * Represents an open panel's state and position.
@@ -120,17 +120,6 @@ export const App: FC = () => {
       );
     };
   }, []);
-
-  /**
-   * Toggles the application theme between dark and light.
-   */
-  // const handleThemeToggle = () => {
-  //   setTheme((prev) => {
-  //     const next = prev === "dark" ? "light" : "dark";
-  //     localStorage.setItem(THEME_KEY, next);
-  //     return next;
-  //   });
-  // };
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -332,7 +321,7 @@ export const App: FC = () => {
         </div>
         <ResponsiveReactGridLayout
           isDroppable
-          // compactType={null}
+          draggableHandle=".drag-handle"
           rowHeight={70}
           layouts={layouts}
           onDropDragOver={() => ({ w: 6, h: 5 })}
@@ -343,7 +332,7 @@ export const App: FC = () => {
             const event = e as unknown as DragEvent;
             const id = `${Date.now()}`;
             const panelType = event.dataTransfer.getData("panelKey");
-            const newItem = { ...item, isDraggable: false, i: id };
+            const newItem = { ...item, i: id };
             console.log(layout);
             setLayouts((prev) => ({
               xxs: [...prev.xxs, newItem],
@@ -370,22 +359,28 @@ export const App: FC = () => {
                   style={{ height: "100%" }}
                   title={mapToTitle[w.key]}
                   extra={
-                    <CloseOutlined
-                      onClick={() => {
-                        setWidgets((prev) => {
-                          const newW = produce(prev, (draft) =>
-                            draft.filter((o) => o.id !== w.id)
-                          );
-                          return newW;
-                        });
-                        setLayouts((prev) => {
-                          const newW = produce(prev.xxs, (draft) =>
-                            draft.filter((o) => o.i !== w.id)
-                          );
-                          return { xxs: newW };
-                        });
-                      }}
-                    />
+                    <>
+                      <CloseOutlined
+                        onClick={() => {
+                          setWidgets((prev) => {
+                            const newW = produce(prev, (draft) =>
+                              draft.filter((o) => o.id !== w.id)
+                            );
+                            return newW;
+                          });
+                          setLayouts((prev) => {
+                            const newW = produce(prev.xxs, (draft) =>
+                              draft.filter((o) => o.i !== w.id)
+                            );
+                            return { xxs: newW };
+                          });
+                        }}
+                      />
+                      <DragOutlined
+                        style={{ marginLeft: 10, cursor: "grab" }}
+                        className="drag-handle"
+                      />
+                    </>
                   }
                   styles={{
                     body: {
