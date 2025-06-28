@@ -16,20 +16,8 @@ import "/node_modules/react-resizable/css/styles.css";
 import { Card } from "antd";
 import { produce } from "immer";
 import { CloseOutlined, DragOutlined } from "@ant-design/icons";
+import styled from "styled-components";
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
-/**
- * Represents an open panel's state and position.
- */
-type OpenPanel = {
-  id: string;
-  key: string;
-  title: string;
-  content: React.ReactNode;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
 
 interface Widget {
   key: string;
@@ -40,17 +28,11 @@ interface Widget {
  * Main application component.
  */
 export const App: FC = () => {
-  const [openPanels, setOpenPanels] = useState<OpenPanel[]>([]);
   const [dragNavPanelKey, setDragNavPanelKey] = useState<string | null>(null);
   const [navOpen, setNavOpen] = useState<boolean>(false);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [dropCell, setDropCell] = useState<{ row: number; col: number } | null>(
-    null
-  );
   const [layouts, setLayouts] = useState<Layouts>({ xxs: [] });
   const [widgets, setWidgets] = useState<Widget[]>([]);
   const { theme, setTheme, setLoggedIn } = React.useContext(ThemeContext);
-  // const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme());
 
   // Drag from nav: set key in dataTransfer
   /**
@@ -60,39 +42,6 @@ export const App: FC = () => {
   const onNavDragStart = (key: string) => (e: DragEvent<HTMLLIElement>) => {
     setDragNavPanelKey(key);
     e.dataTransfer.setData("panelKey", key);
-  };
-
-  /**
-   * Closes a panel by id.
-   */
-  const handleClose = (id: string) => {
-    setOpenPanels(openPanels.filter((p) => p.id !== id));
-  };
-
-  /**
-   * Moves a panel by delta x and y.
-   */
-  const handlePanelMove = (id: string, dx: number, dy: number) => {
-    setOpenPanels((panels) =>
-      panels.map((p) => (p.id === id ? { ...p, x: p.x + dx, y: p.y + dy } : p))
-    );
-  };
-
-  /**
-   * Resizes a panel by delta width and height.
-   */
-  const handlePanelResize = (id: string, dw: number, dh: number) => {
-    setOpenPanels((panels) =>
-      panels.map((p) =>
-        p.id === id
-          ? {
-              ...p,
-              width: Math.max(200, p.width + dw),
-              height: Math.max(100, p.height + dh),
-            }
-          : p
-      )
-    );
   };
 
   // Inactivity logout timer
@@ -210,7 +159,6 @@ export const App: FC = () => {
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          // background: "#232b3e",
           overflow: "hidden",
           height: "100%",
           width: "100%",
@@ -319,6 +267,13 @@ export const App: FC = () => {
             />
           </div>
         </div>
+        {widgets.length === 0 && (
+          <Info>
+            No panels open.
+            <br />
+            Drag one from the navigation bar.
+          </Info>
+        )}
         <ResponsiveReactGridLayout
           isDroppable
           draggableHandle=".drag-handle"
@@ -394,60 +349,20 @@ export const App: FC = () => {
             );
           })}
         </ResponsiveReactGridLayout>
-        {openPanels.length === 0 ? (
-          <div
-            style={{ color: "#888", textAlign: "center", marginTop: "2rem" }}
-          >
-            No panels open.
-            <br />
-            Drag one from the navigation bar.
-          </div>
-        ) : (
-          openPanels.map((panel) => (
-            <ResizableDraggablePanel
-              {...panel}
-              onClose={() => handleClose(panel.id)}
-              onMove={(dx, dy) => handlePanelMove(panel.id, dx, dy)}
-              onResize={(dw, dh) => handlePanelResize(panel.id, dw, dh)}
-              // Add a prop to indicate dragging for overlay z-index if needed
-            />
-          ))
-        )}
       </main>
     </div>
   );
 };
 
+const Info = styled.div`
+  color: #888;
+  text-align: center;
+  margin-top: 2rem;
+  position: absolute;
+  width: 100%;
+  top: 60px;
+`;
+
 const NAV_BAR_HEIGHT = 56; // px, must match your nav bar minHeight
 
 const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
-
-const GRID_ROWS = 2;
-const GRID_COLS = 2;
-/**
- * Calculates the position and size of a grid cell.
- * @param row Row index
- * @param col Column index
- * @param containerWidth Width of the container
- * @param containerHeight Height of the container
- * @param navBarHeight Height of the navigation bar
- */
-const getGridCellPosition = (
-  row: number,
-  col: number,
-  containerWidth: number,
-  containerHeight: number,
-  navBarHeight: number
-) => {
-  const cellWidth = containerWidth / GRID_COLS;
-  const cellHeight = containerHeight / GRID_ROWS;
-  return {
-    x: Math.round(col * cellWidth),
-    y: Math.round(row * cellHeight + navBarHeight),
-    width: Math.round(cellWidth),
-    height: Math.round(cellHeight),
-  };
-};
-
-const dummy: FC<Record<string, any>> = () => null;
-const ResizableDraggablePanel = dummy;

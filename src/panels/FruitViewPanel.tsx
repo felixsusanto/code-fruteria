@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { MockFruitMachine, Fruit } from '../../engine/MockFruitMachine';
 export type Fruit = "apple" | "banana" | "orange";
 
 export interface FruitInventory {

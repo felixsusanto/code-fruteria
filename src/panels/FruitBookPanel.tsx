@@ -1,9 +1,7 @@
 import React, { useState, useRef } from "react";
-import FruitEnrichmentPanel from "./FruitEnrichmentPanel";
-import ReactDOM from "react-dom";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
-import type { ColDef } from "ag-grid-community";
+import type { ColDef, RowDoubleClickedEvent } from "ag-grid-community";
 import { Drawer } from "antd";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -11,7 +9,16 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 // Register ag-grid modules (required for module-based builds)
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const fruits = [
+interface Fruit {
+  id: string;
+  name: string;
+  country: string;
+  type: string;
+  status: string;
+  details: string;
+}
+
+const fruits: Fruit[] = [
   {
     id: "F001",
     name: "Banana",
@@ -103,7 +110,7 @@ const columnDefs: ColDef[] = [
     headerName: "Status",
     field: "status",
     minWidth: 120,
-    cellStyle: (params: any) => ({
+    cellStyle: (params: { value: string }) => ({
       color:
         params.value === "Available"
           ? "#7c5fe6"
@@ -125,10 +132,10 @@ const defaultColDef = {
 };
 
 const FruitBook: React.FC = () => {
-  const [selectedFruit, setSelectedFruit] = useState<any | null>(null);
-  const gridRef = useRef<any>(null);
+  const [selectedFruit, setSelectedFruit] = useState<Fruit | null>(null);
+  const gridRef = useRef<AgGridReact>(null);
 
-  const onRowDoubleClicked = (event: any) => {
+  const onRowDoubleClicked = (event: RowDoubleClickedEvent) => {
     setSelectedFruit(event.data);
   };
 
@@ -153,7 +160,7 @@ const FruitBook: React.FC = () => {
             border: "1px solid #7c5fe6",
           }}
         >
-          <AgGridReact<any>
+          <AgGridReact<Fruit>
             ref={gridRef}
             rowData={fruits}
             columnDefs={columnDefs}
@@ -164,7 +171,7 @@ const FruitBook: React.FC = () => {
             onSelectionChanged={onSelectionChanged}
             onRowDoubleClicked={onRowDoubleClicked}
             getRowStyle={(params) => {
-              if (selectedFruit && params.data.id === selectedFruit.id) {
+              if (selectedFruit && params.data?.id === selectedFruit.id) {
                 return {
                   fontFamily: "monospace",
                   fontSize: 16,
@@ -177,21 +184,15 @@ const FruitBook: React.FC = () => {
                 fontSize: 16,
                 color: "#f5f5f5",
                 background:
-                  params.node.rowIndex % 2 === 0 ? "#232b3e" : "#262f47",
+                  params.node.rowIndex && params.node.rowIndex % 2 === 0
+                    ? "#232b3e"
+                    : "#262f47",
               };
             }}
             suppressCellFocus={true}
           />
         </div>
       </div>
-      {selectedFruit &&
-        ReactDOM.createPortal(
-          <FruitEnrichmentPanel
-            fruit={selectedFruit}
-            onClose={() => setSelectedFruit(null)}
-          />,
-          document.body
-        )}
       <Drawer
         title={`${selectedFruit?.name} Enrichment`}
         placement="right"
@@ -207,7 +208,7 @@ const FruitBook: React.FC = () => {
 };
 
 const EnrichmentPanel: React.FC<{
-  selectedFruit: null | Record<string, string>;
+  selectedFruit: null | Fruit;
 }> = (props) => {
   const columnDefs = React.useMemo<ColDef[]>(() => {
     return [
