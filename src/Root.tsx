@@ -6,9 +6,9 @@ import { ConfigProvider, theme as antdTheme } from "antd";
 import {
   getInitialTheme,
   THEME_KEY,
-  ThemeContext,
+  AppContext,
   type ThemeOption,
-} from "./context/theme";
+} from "./context/app";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -106,7 +106,7 @@ const Root: React.FC = () => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, loggedIn, setLoggedIn }}>
+    <AppContext.Provider value={{ theme, setTheme, loggedIn, setLoggedIn }}>
       <ConfigProvider
         theme={{
           components: {
@@ -130,7 +130,7 @@ const Root: React.FC = () => {
           <LoginComponent onLoginSuccess={() => setLoggedIn(true)} />
         )}
       </ConfigProvider>
-    </ThemeContext.Provider>
+    </AppContext.Provider>
   );
 };
 

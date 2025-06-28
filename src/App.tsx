@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { FC, DragEvent } from "react";
-import { ThemeContext } from "./context/theme";
+import { AppContext } from "./context/app";
 import AboutIcon from "./Icons/AboutIcon";
 import TermsIcon from "./Icons/TermsIcon";
 import FruitViewIcon from "./Icons/FruitViewIcon";
@@ -32,7 +32,7 @@ export const App: FC = () => {
   const [navOpen, setNavOpen] = useState<boolean>(false);
   const [layouts, setLayouts] = useState<Layouts>({ xxs: [] });
   const [widgets, setWidgets] = useState<Widget[]>([]);
-  const { theme, setTheme, setLoggedIn } = React.useContext(ThemeContext);
+  const { theme, setTheme, setLoggedIn } = React.useContext(AppContext);
 
   // Drag from nav: set key in dataTransfer
   /**
