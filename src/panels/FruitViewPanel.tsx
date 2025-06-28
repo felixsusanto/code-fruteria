@@ -1,4 +1,15 @@
 import React, { useState } from "react";
+import {
+  theme,
+  Form,
+  Select,
+  InputNumber,
+  Button,
+  Typography,
+  List,
+  message as antdMessage,
+} from "antd";
+
 export type Fruit = "apple" | "banana" | "orange";
 
 export interface FruitInventory {
@@ -29,24 +40,15 @@ export class MockFruitMachine {
   }
 }
 
-// Add Ant Design imports
-import {
-  Form,
-  Select,
-  InputNumber,
-  Button,
-  Typography,
-  List,
-  message as antdMessage,
-} from "antd";
-
 const { Option } = Select;
 const { Title, Text } = Typography;
+const { useToken } = theme;
 
 const fruitList: Fruit[] = ["apple", "banana", "orange"];
 const machine = new MockFruitMachine();
 
 export const FruitViewPanel: React.FC = () => {
+  const { token } = useToken();
   const [inventory, setInventory] = useState(machine.getInventory());
   const [selectedFruit, setSelectedFruit] = useState<Fruit>("apple");
   const [amount, setAmount] = useState(1);
@@ -131,7 +133,7 @@ export const FruitViewPanel: React.FC = () => {
         dataSource={fruitList}
         renderItem={(fruit) => (
           <List.Item style={{ padding: "4px 0" }}>
-            <Text style={{ color: "#bfcfff", fontSize: 16 }}>
+            <Text style={{ color: token.colorPrimaryText, fontSize: 16 }}>
               {fruit}: <Text strong>{inventory[fruit]}</Text>
             </Text>
           </List.Item>
