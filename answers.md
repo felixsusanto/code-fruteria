@@ -58,6 +58,8 @@
 
 ## Challenge Checklist
 
+![Screenshot of Unit Test Coverage](./src/images/unit-test.png)
+
 ### 🍉 Acceptance Criteria
 
 - [x] Upgrade the project to **React 18**.
