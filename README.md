@@ -1,69 +1,92 @@
-# React + TypeScript + Vite
+# 🍌 Code Fruteria 🍎
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the juiciest repo on GitHub! This is your backstage pass to a mock login system and the world’s first* digital fruit trading floor. (*Probably.)
 
-Currently, two official plugins are available:
+> **Note:** This project runs best on **Node.js v16.14.2**.  
+> If you’re using a different version, you might end up with banana peels in your stack trace.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🥝 Getting Started
 
-## Expanding the ESLint configuration
+1. **Install dependencies**  
+   _(Don’t worry, no actual fruit required.)_
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+   ```bash
+   npm install
+   ```
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Start the development server**  
+   _(Let the fruit fiesta begin!)_
+   ```bash
+   npm run start
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 🍊 Mock Login
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Check out `auth/mockLogin.ts` for a taste of our authentication magic.
+- Exports a `mockLogin` function that pretends to check your credentials.
+- Try logging in as:
+  - **admin** / **1234**
+  - **user** / **password**
+- _Yes, our security is softer than an overripe peach. Maybe engineers should take security a bit more seriously?_
+- **Bonus:** If you want to show off your fullstack skills, build a real backend for authentication (Node.js or your favorite language) and earn extra fruit salad points!
+- _P.S.: Feel free to use AI tools like **Amazon Q**, **GitHub Copilot**, or your favorite code assistant to help you out!_
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+# 🍇 Code Fruit Challenge
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+This repo is a stripped-down, vitamin-packed version of the code-fruit project. It’s got just enough pulp to get you started.
+
+🎉 **Calling all code wizards and fruit fanatics!** 🍌🍎
+
+Ever dreamed of trading apples for bananas like a Wall Street pro? Now’s your chance!  
+This app lets you swap strawberries for pineapples and pretend you’re the Gordon Gekko of the produce aisle. 🍍📊
+
+But, like a forgotten banana, things have gotten a little… mushy:
+
+- The codebase is a bit overripe and needs a refactor.
+- We’re stuck on React 16—let’s peel up to React 18 (and maybe even React 19 if you’re feeling wild).
+- The light theme could be fresher than a lemon on a summer day.
+- There’s more juicy work to do, but let’s not bite off more than we can chew.
+- _Some files are just lying around unused—let’s clean up the codebase and compost the leftovers!_
+- **Bonus:** Migrate the build system from **Webpack** to **Vite** for a faster, fresher development experience!
+
+Who’s ready to modernize this digital fruit bazaar? 🍇💻
+
+![Screenshot of Login](./src/images/login.png)
+![Screenshot of Code Fruteria app](./src/images/fruitTrade.png)
+![Screenshot of User Profile](./src/images/user.png)
+
+## 🍉 Acceptance Criteria
+
+- Upgrade the project to **React 18**.
+  - Upgrading to **React 19** is a bonus, but React 18 is your first pit stop.
+- Add **unit tests** before you start refactoring. (No squishy bugs allowed!)
+- Upgrade all dependencies so they play nicely with React 18 (or 19, if you’re feeling zesty).
+- Update both the **light** and **dark** themes—make them so fresh you’ll need sunglasses.
+- **Fix the drag and drop for panels**—right now, it’s more slippery than a watermelon seed.
+- **Tame the panel resizing**—currently, it’s wilder than a runaway grape.
+- **Upgrade the grid/layout** so panels can go horizontal, vertical, or do the cha-cha for better visual combos.
+- **Fix the theme switch** (light/dark)—right now, it’s more confused than a kiwi in a fruit salad.
+
+## 🥭 Bonus
+
+- **Migrate from Webpack to Vite:**  
+  Swap out the old Webpack setup for [Vite](https://vitejs.dev/) to enjoy lightning-fast hot module reloading and a simpler config.  
+  _Tip: Vite works great with React 18+ and will make your dev workflow as snappy as a fresh snap pea!_
+- **Upgrade to React 19:**  
+  Take it to the next level by upgrading the project to [React 19](https://react.dev/blog/2024/04/25/react-v19.0.0), and try out the latest features!
+- **Implement a real backend for authentication:**  
+  Replace the mock frontend authentication with a real backend (Node.js or your favorite language).
+  - Create an authentication server (REST or GraphQL) to handle login and user info.
+  - Update the frontend to retrieve authentication and user data from the backend instead of mocking it.
+- **Extra Credit:**
+  - Document any migration steps or gotchas you encounter.
+  - Compare build/start times before and after the migration.
+  - Share your favorite Vite plugin for React projects!
+
+---
+
+🍏 **Ready to squeeze the most out of this repo? Fork it, juice it, and make it your own!**
+
+---

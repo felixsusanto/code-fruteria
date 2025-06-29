@@ -15,7 +15,7 @@ import "/node_modules/react-grid-layout/css/styles.css";
 import "/node_modules/react-resizable/css/styles.css";
 import { Card } from "antd";
 import { produce } from "immer";
-import { CloseOutlined, DragOutlined } from "@ant-design/icons";
+import { CloseOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);

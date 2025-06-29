@@ -22,7 +22,7 @@ const GlobalStyle = createGlobalStyle`
   .theme-light {
     --primary-color: #4CAF50;
     --secondary-color: #FFC107;
-    --background-color: #F5F5F5;
+    --background-color: #D2D7E5;
     --text-color: #333;
     --border-radius: 4px;
 

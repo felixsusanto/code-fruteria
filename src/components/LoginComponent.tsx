@@ -25,21 +25,42 @@ export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
 
   const handleSubmit = React.useCallback<
     NonNullable<FormProps<FieldType>["onFinish"]>
-  >((values) => {
-    const { username, password } = values;
-    if (username === "admin" && password === "1234") {
-      if (props.onLoginSuccess) {
-        props.onLoginSuccess();
-      }
-    } else {
-      setErrMsg("Invalid credentials");
-    }
-  }, []);
+  >(
+    (values) => {
+      const { username, password } = values;
+
+      setErrMsg("");
+      fetch("http://localhost:3000/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data?.message || "Login failed");
+          }
+          return res.json();
+        })
+        .then(() => {
+          props.onLoginSuccess();
+        })
+        .catch((err) => {
+          // "Failed to fetch" is a common message for network errors in most browsers,
+          if (err.message === "Failed to fetch") {
+            setErrMsg("Mock server is not running. Please start the server.");
+          } else {
+            setErrMsg(err.message || "Login failed");
+          }
+        });
+    },
+    [props]
+  );
 
   const inputStyle = React.useMemo(
     () => ({
-      // background: "#232b3e",
-      // color: "#fff",
       border: "1px solid #3e4a6b",
     }),
     []
