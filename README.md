@@ -2,9 +2,6 @@
 
 Welcome to the juiciest repo on GitHub! This is your backstage pass to a mock login system and the world’s first* digital fruit trading floor. (*Probably.)
 
-> **Note:** This project runs best on **Node.js v16.14.2**.  
-> If you’re using a different version, you might end up with banana peels in your stack trace.
-
 ## 🥝 Getting Started
 
 1. **Install dependencies**  
@@ -14,16 +11,21 @@ Welcome to the juiciest repo on GitHub! This is your backstage pass to a mock lo
    npm install
    ```
 
-2. **Start the development server**  
+2. **Start the backend server**  
+   _(let the server be ready!)_
+
+   ```bash
+   npm run server
+   ```
+
+3. **Start the development server**  
    _(Let the fruit fiesta begin!)_
    ```bash
-   npm run start
+   npm run dev
    ```
 
 ## 🍊 Mock Login
 
-- Check out `auth/mockLogin.ts` for a taste of our authentication magic.
-- Exports a `mockLogin` function that pretends to check your credentials.
 - Try logging in as:
   - **admin** / **1234**
   - **user** / **password**
