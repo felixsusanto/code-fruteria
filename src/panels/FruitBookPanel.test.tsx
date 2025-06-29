@@ -16,8 +16,7 @@ describe("FruitBook", () => {
     const api = {
       getSelectedNodes: jest.fn(),
     };
-    const { debug } = render(<FruitBook />);
-    debug();
+    render(<FruitBook />);
     expect(AgGridReact).toHaveBeenCalled();
     // Access the mock via require to get the jest.fn instance
     const [

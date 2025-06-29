@@ -17,7 +17,8 @@ import { Card } from "antd";
 import { produce } from "immer";
 import { CloseOutlined, DragOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
+export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 interface Widget {
   key: string;
@@ -316,6 +317,7 @@ export const App: FC = () => {
                   extra={
                     <>
                       <CloseOutlined
+                        data-testid="close"
                         onClick={() => {
                           setWidgets((prev) => {
                             const newW = produce(prev, (draft) =>
