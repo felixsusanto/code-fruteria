@@ -3,10 +3,10 @@
 1. **How much time did you spend on the engineering task?**
 
    - 15% debugging dependency issue
-   - 35% trying to understand the codebase
+   - 30% trying to understand the codebase
    - 10% reading documentation for antd
    - 35% refactoring work
-   - 5% unit test?
+   - 10% unit test?
 
 2. **What would you add to your solution if you’d had more time?**
    - Refactoring all the stying, too many inline styles on the component, and leverage the use of CSS variables for theme toggling.

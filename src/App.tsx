@@ -277,7 +277,7 @@ export const App: FC = () => {
         )}
         <ResponsiveReactGridLayout
           isDroppable
-          draggableHandle=".drag-handle"
+          draggableHandle=".ant-card-head-title"
           rowHeight={70}
           layouts={layouts}
           onDropDragOver={() => ({ w: 6, h: 5 })}
@@ -333,13 +333,12 @@ export const App: FC = () => {
                           });
                         }}
                       />
-                      <DragOutlined
-                        style={{ marginLeft: 10, cursor: "grab" }}
-                        className="drag-handle"
-                      />
                     </>
                   }
                   styles={{
+                    title: {
+                      cursor: "grab",
+                    },
                     body: {
                       height: "calc(100% - 38px)",
                     },
