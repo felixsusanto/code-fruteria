@@ -18,6 +18,26 @@ beforeAll(() => {
     })),
   });
 });
+beforeEach(() => {
+  /*
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({}),
+    })
+  ) as jest.Mock;
+  */
+  global.fetch = jest
+    .fn()
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) })
+    .mockRejectedValueOnce({ message: "Failed to fetch" })
+    .mockRejectedValueOnce({ message: "error" })
+    .mockRejectedValueOnce({});
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
 
 describe("<LoginComponent />", () => {
   it("should render without error", async () => {
@@ -39,6 +59,8 @@ describe("<LoginComponent />", () => {
     expect(spy).toHaveBeenCalled();
     await user.click(password);
     await user.keyboard("12345");
+    await user.click(login);
+    await user.click(login);
     await user.click(login);
   });
 });

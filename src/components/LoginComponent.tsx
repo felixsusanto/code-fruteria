@@ -38,10 +38,6 @@ export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
         body: JSON.stringify({ username, password }),
       })
         .then(async (res) => {
-          if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            throw new Error(data?.message || "Login failed");
-          }
           return res.json();
         })
         .then(() => {
