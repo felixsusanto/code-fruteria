@@ -1,15 +1,16 @@
 import React, { useState, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
-import type { ColDef, RowDoubleClickedEvent } from "ag-grid-community";
+import type { ColDef, RowDoubleClickedEvent, GridApi } from "ag-grid-community";
 import { Drawer } from "antd";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { EnrichmentPanel } from "./EnrichmentPanel";
 
 // Register ag-grid modules (required for module-based builds)
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-interface Fruit {
+export interface Fruit {
   id: string;
   name: string;
   country: string;
@@ -131,23 +132,20 @@ const defaultColDef = {
   resizable: true,
 };
 
-const FruitBook: React.FC = () => {
+export const FruitBook: React.FC = () => {
   const [selectedFruit, setSelectedFruit] = useState<Fruit | null>(null);
-  const gridRef = useRef<AgGridReact>(null);
+  const gridRef = useRef<GridApi<Fruit>>(null);
 
   const onRowDoubleClicked = (event: RowDoubleClickedEvent) => {
     setSelectedFruit(event.data);
   };
 
   const onSelectionChanged = () => {
-    const selectedNodes = gridRef.current?.api.getSelectedNodes();
+    const selectedNodes = gridRef.current?.getSelectedNodes();
     if (selectedNodes && selectedNodes.length > 0) {
-      setSelectedFruit(selectedNodes[0].data);
+      setSelectedFruit(selectedNodes[0].data ?? null);
     }
   };
-
-  // Debug: Log fruits to ensure data is present
-  console.log("fruits:", fruits);
 
   return (
     <>
@@ -161,7 +159,9 @@ const FruitBook: React.FC = () => {
           }}
         >
           <AgGridReact<Fruit>
-            ref={gridRef}
+            onGridReady={(e) => {
+              gridRef.current = e.api;
+            }}
             rowData={fruits}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
@@ -206,42 +206,3 @@ const FruitBook: React.FC = () => {
     </>
   );
 };
-
-const EnrichmentPanel: React.FC<{
-  selectedFruit: null | Fruit;
-}> = (props) => {
-  const columnDefs = React.useMemo<ColDef[]>(() => {
-    return [
-      {
-        headerName: "Property",
-        field: "property",
-      },
-      {
-        headerName: "Value",
-        field: "value",
-      },
-    ];
-  }, []);
-  const rowData = React.useMemo(
-    () =>
-      props.selectedFruit && [
-        { property: "ID", value: props.selectedFruit.id },
-        { property: "Country", value: props.selectedFruit.country },
-        { property: "Type", value: props.selectedFruit.type },
-        { property: "Status", value: props.selectedFruit.status },
-        { property: "Details", value: props.selectedFruit.details },
-      ],
-    [props.selectedFruit]
-  );
-  return (
-    <div className="ag-theme-alpine" style={{ height: 200 }}>
-      <AgGridReact
-        columnDefs={columnDefs}
-        rowData={rowData}
-        defaultColDef={{ width: 100, flex: 1 }}
-      />
-    </div>
-  );
-};
-
-export default FruitBook;

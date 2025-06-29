@@ -7,7 +7,7 @@ import FruitViewIcon from "./Icons/FruitViewIcon";
 import UserProfile from "./components/UserProfile";
 import { panelList } from "./panels/panelList";
 import AboutPanel from "./panels/AboutPanel";
-import FruitBookPanel from "./panels/FruitBookPanel";
+import { FruitBook } from "./panels/FruitBookPanel";
 import { FruitViewPanel } from "./panels/FruitViewPanel";
 
 import { Responsive, WidthProvider, type Layouts } from "react-grid-layout";
@@ -298,7 +298,7 @@ export const App: FC = () => {
         >
           {widgets.map((w) => {
             const mapToComp: Record<string, React.ReactNode> = {
-              fruitbook: <FruitBookPanel />,
+              fruitbook: <FruitBook />,
               fruitview: <FruitViewPanel />,
               about: <AboutPanel />,
             };

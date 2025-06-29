@@ -8,8 +8,14 @@ const config: Config = {
     "^.+\\.tsx?$": "ts-jest",
   },
   moduleNameMapper: {
-    "\\.(gif|ttf|eot|svg|png)$": "<rootDir>/test/mocks/fileMock.js",
+    "\\.(gif|ttf|eot|svg|png|css)$": "<rootDir>/test/mocks/fileMock.js",
   },
+  collectCoverageFrom: [
+    "src/**/*.{ts,tsx}",
+    "!**/node_modules/**",
+    "!**/vendor/**",
+  ],
+  coverageReporters: [["lcov", { relativePath: false }]],
 };
 
 export default config;
