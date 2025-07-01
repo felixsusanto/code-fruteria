@@ -1,4 +1,3 @@
-import React from "react";
 import { render } from "@testing-library/react";
 import { EnrichmentPanel } from "./EnrichmentPanel";
 import type { Fruit } from "./FruitBookPanel";

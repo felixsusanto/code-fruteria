@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen, act } from "@testing-library/react";
 import UserEvent from "@testing-library/user-event";
 import { App, ResponsiveReactGridLayout as rggl } from "./App";
@@ -43,7 +42,7 @@ jest.mock("./components/UserProfile", () => ({
 describe("<App />", () => {
   it("should render without error", async () => {
     const user = UserEvent.setup();
-    const { debug } = render(<App />);
+    render(<App />);
     expect(UserProfile).toHaveBeenCalled();
     const [{ onLogout, onThemeToggle }] = UserProfile.mock.lastCall ?? [];
     expect(onLogout).toBeTruthy();

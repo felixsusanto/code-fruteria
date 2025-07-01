@@ -1,4 +1,4 @@
-import React from "react";
+import "@testing-library/jest-dom";
 import Root from "./Root";
 import { render, act } from "@testing-library/react";
 import { LoginComponent as lc } from "./components/LoginComponent";
