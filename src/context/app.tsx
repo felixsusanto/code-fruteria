@@ -1,6 +1,6 @@
 import React from "react";
 
-export type ThemeOption = "dark" | "light";
+export type ThemeOption = "dark" | "light" | "null";
 export const THEME_KEY = "theme"; // localStorage key
 /**
  * Gets the initial theme from localStorage or prompts the user.

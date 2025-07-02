@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Button } from "antd";
 import { SmileFilled } from "@ant-design/icons";
 import { UserPopover } from "./UserPopover";
+import type { ThemeOption } from "../context/app";
 
 // Add these props to the component's props type/interface:
 interface UserProfileProps {
   onLogout: () => void;
   onThemeToggle?: (checked: boolean) => void;
-  theme?: "dark" | "light";
+  theme?: ThemeOption;
 }
 
 // Update the component signature:

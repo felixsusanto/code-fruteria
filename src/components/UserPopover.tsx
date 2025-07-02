@@ -1,13 +1,15 @@
 import React from "react";
 import { Button, Typography, Switch } from "antd";
-import { SunFilled, MoonFilled } from "@ant-design/icons";
+import { ThemeToggleButton } from "./ThemeToggleButton";
+import type { ThemeOption } from "../context/app";
+import styled from "styled-components";
 
 interface UserPopoverProps {
   userInfo: { name: string; email: string };
   onLogout: () => void;
   onCancel: () => void;
   onThemeToggle?: (checked: boolean) => void;
-  theme?: "dark" | "light";
+  theme?: ThemeOption;
 }
 // Styles
 const popoverContainerStyle: React.CSSProperties = {
@@ -43,11 +45,10 @@ const dividerStyle: React.CSSProperties = {
   borderTop: "1px solid #35394a",
 };
 
-const themeSwitchStyle: React.CSSProperties = {
-  marginLeft: 8,
-  marginTop: 16,
-  display: "inline-block",
-};
+const FlexCenter = styled.div`
+  display: flex;
+  justify-content: center;`
+;
 
 export const UserPopover: React.FC<UserPopoverProps> = ({
   userInfo,
@@ -85,19 +86,14 @@ export const UserPopover: React.FC<UserPopoverProps> = ({
     <Button block style={cancelButtonStyle} onClick={onCancel}>
       Cancel
     </Button>
-    {onThemeToggle && (
-      <div style={themeSwitchStyle}>
-        <Switch
-          checkedChildren={<MoonFilled />}
-          unCheckedChildren={<SunFilled />}
-          checked={theme === "dark"}
-          onChange={onThemeToggle}
-          defaultChecked
+    <FlexCenter>
+      {onThemeToggle && (
+        <ThemeToggleButton 
+          onThemeToggle={onThemeToggle}
+          theme={theme || "light"}
         />
-        <span style={{ marginLeft: 8, color: "#b0b4c1", fontSize: 14 }}>
-          {theme === "dark" ? "Dark" : "Light"} Theme
-        </span>
-      </div>
-    )}
+      )}
+    </FlexCenter>
   </div>
 );
+

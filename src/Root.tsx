@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { LoginComponent } from "./components/LoginComponent";
 import { App } from "./App";
 import { createGlobalStyle } from "styled-components";
-import { ConfigProvider, theme as antdTheme } from "antd";
+import { ConfigProvider, theme as antdTheme, Modal } from "antd";
 import {
   getInitialTheme,
   THEME_KEY,
   AppContext,
   type ThemeOption,
 } from "./context/app";
+import { ThemeToggleButton } from "./components/ThemeToggleButton";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -92,7 +93,15 @@ const isLoggedIn = () => localStorage.getItem("isLoggedIn") === "true";
 const Root: React.FC = () => {
   const [theme, setTheme] = useState<ThemeOption>(getInitialTheme());
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   useEffect(() => {
     if (loggedIn) {
       localStorage.setItem("isLoggedIn", "true");
@@ -100,9 +109,12 @@ const Root: React.FC = () => {
   }, [loggedIn]);
 
   useEffect(() => {
+    if (!theme || theme === "null") {
+      setIsModalOpen(true);
+    }
     localStorage.setItem(THEME_KEY, theme);
     document.body.classList.remove("theme-dark", "theme-light");
-    document.body.classList.add(`theme-${theme}`);
+    document.body.classList.add(`theme-${theme ?? "dark"}`);
   }, [theme]);
 
   return (
@@ -130,6 +142,18 @@ const Root: React.FC = () => {
           <LoginComponent onLoginSuccess={() => setLoggedIn(true)} />
         )}
       </ConfigProvider>
+      <Modal
+        title="Theme Selection"
+        closable={{ 'aria-label': 'Custom Close Button' }}
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <ThemeToggleButton 
+          onThemeToggle={(checked) => setTheme(checked ? "dark" : "light")}
+          theme={theme || "dark"}
+        />
+      </Modal>
     </AppContext.Provider>
   );
 };
