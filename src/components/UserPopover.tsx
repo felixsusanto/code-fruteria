@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Typography, Switch } from "antd";
+import { Button, Typography } from "antd";
 import { ThemeToggleButton } from "./ThemeToggleButton";
 import type { ThemeOption } from "../context/app";
 import styled from "styled-components";

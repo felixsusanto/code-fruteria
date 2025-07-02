@@ -2,6 +2,10 @@ import { render } from "@testing-library/react";
 import { EnrichmentPanel } from "./EnrichmentPanel";
 import type { Fruit } from "./FruitBookPanel";
 
+jest.mock("ag-grid-react", () => ({
+  AgGridReact: jest.fn(() => <div>Mocked AgGridReact</div>),
+}));
+
 describe("EnrichmentPanel", () => {
   const mockFruit: Fruit = {
     id: "123",

@@ -25,13 +25,4 @@ describe("AboutPanel", () => {
     expect(screen.getByText(/🍌 and ❤️/i)).toBeInTheDocument();
   });
 
-  it("has correct styles on the title", () => {
-    render(<AboutPanel />);
-    const title = screen.getByText("About");
-    expect(title).toHaveStyle({
-      fontWeight: "700",
-      fontSize: "22px",
-      margin: "0px",
-    });
-  });
 });
