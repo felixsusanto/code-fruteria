@@ -113,13 +113,12 @@ const Root: React.FC = () => {
   useEffect(() => {
     if (!theme || theme === "null") {
       setIsModalOpen(true);
-      return;
     }
-    localStorage.setItem(THEME_KEY, theme);
+    localStorage.setItem(THEME_KEY, theme ?? "null");
     document.body.classList.remove("theme-dark", "theme-light");
     document.body.classList.add(`theme-${theme ?? "dark"}`);
   }, [theme]);
-
+  const themeIsNull = theme === null;
   return (
     <AppContext.Provider value={{ theme: theme ?? "dark", setTheme, loggedIn, setLoggedIn, userData }}>
       <ConfigProvider
@@ -130,10 +129,10 @@ const Root: React.FC = () => {
             },
           },
           token: {
-            colorBgBase: theme === "dark" ? "#232b3e" : "#F5F5F5",
+            colorBgBase: theme === "dark" || themeIsNull ? "#232b3e" : "#F5F5F5",
           },
           algorithm:
-            theme === "dark" || theme === "null" || theme === null
+            theme === "dark" || theme === "null" || themeIsNull
               ? antdTheme.darkAlgorithm
               : antdTheme.defaultAlgorithm,
         }}
