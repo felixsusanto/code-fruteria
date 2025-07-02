@@ -20,6 +20,14 @@ import styled from "styled-components";
 
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
+const GridLayoutWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+`;
+
 interface Widget {
   key: string;
   id: string;
@@ -275,81 +283,82 @@ export const App: FC = () => {
             Drag one from the navigation bar.
           </Info>
         )}
-        <ResponsiveReactGridLayout
-          isDroppable
-          draggableHandle=".ant-card-head-title"
-          rowHeight={70}
-          layouts={layouts}
-          onDropDragOver={() => ({ w: 6, h: 5 })}
-          breakpoints={{ xxs: 0 }}
-          cols={{ xxs: 12 }}
-          measureBeforeMount={false}
-          onDrop={(layout, item, e) => {
-            const event = e as unknown as DragEvent;
-            const id = `${Date.now()}`;
-            const panelType = event.dataTransfer.getData("panelKey");
-            const newItem = { ...item, i: id };
-            console.log(layout);
-            setLayouts((prev) => ({
-              xxs: [...prev.xxs, newItem],
-            }));
-            setWidgets((prev) => [...prev, { id, key: panelType }]);
-          }}
-          style={{ flex: 1 }}
-        >
-          {widgets.map((w) => {
-            const mapToComp: Record<string, React.ReactNode> = {
-              fruitbook: <FruitBook />,
-              fruitview: <FruitViewPanel />,
-              about: <AboutPanel />,
-            };
-            const mapToTitle: Record<string, string> = {
-              fruitbook: "Fruit Book",
-              fruitview: "Fruit View",
-              about: "About",
-            };
-            return (
-              <div key={w.id} style={{ overflow: "hidden" }}>
-                <Card
-                  size="small"
-                  style={{ height: "100%" }}
-                  title={mapToTitle[w.key]}
-                  extra={
-                    <>
-                      <CloseOutlined
-                        data-testid="close"
-                        onClick={() => {
-                          setWidgets((prev) => {
-                            const newW = produce(prev, (draft) =>
-                              draft.filter((o) => o.id !== w.id)
-                            );
-                            return newW;
-                          });
-                          setLayouts((prev) => {
-                            const newW = produce(prev.xxs, (draft) =>
-                              draft.filter((o) => o.i !== w.id)
-                            );
-                            return { xxs: newW };
-                          });
-                        }}
-                      />
-                    </>
-                  }
-                  styles={{
-                    title: {
-                      cursor: "grab",
-                    },
-                    body: {
-                      height: "calc(100% - 38px)",
-                    },
-                  }}
-                >
-                  {mapToComp[w.key]}
-                </Card>
-              </div>
-            );
-          })}
-        </ResponsiveReactGridLayout>
+        <GridLayoutWrapper>
+          <ResponsiveReactGridLayout
+            isDroppable
+            draggableHandle=".ant-card-head-title"
+            rowHeight={70}
+            layouts={layouts}
+            onDropDragOver={() => ({ w: 6, h: 5 })}
+            breakpoints={{ xxs: 0 }}
+            cols={{ xxs: 12 }}
+            measureBeforeMount={false}
+            onDrop={(_, item, e) => {
+              const event = e as unknown as DragEvent;
+              const id = `${Date.now()}`;
+              const panelType = event.dataTransfer.getData("panelKey");
+              const newItem = { ...item, i: id };
+              setLayouts((prev) => ({
+                xxs: [...prev.xxs, newItem],
+              }));
+              setWidgets((prev) => [...prev, { id, key: panelType }]);
+            }}
+            style={{ flex: 1 }}
+          >
+            {widgets.map((w) => {
+              const mapToComp: Record<string, React.ReactNode> = {
+                fruitbook: <FruitBook />,
+                fruitview: <FruitViewPanel />,
+                about: <AboutPanel />,
+              };
+              const mapToTitle: Record<string, string> = {
+                fruitbook: "Fruit Book",
+                fruitview: "Fruit View",
+                about: "About",
+              };
+              return (
+                <div key={w.id} style={{ overflow: "hidden" }}>
+                  <Card
+                    size="small"
+                    style={{ height: "100%" }}
+                    title={mapToTitle[w.key]}
+                    extra={
+                      <>
+                        <CloseOutlined
+                          data-testid="close"
+                          onClick={() => {
+                            setWidgets((prev) => {
+                              const newW = produce(prev, (draft) =>
+                                draft.filter((o) => o.id !== w.id)
+                              );
+                              return newW;
+                            });
+                            setLayouts((prev) => {
+                              const newW = produce(prev.xxs, (draft) =>
+                                draft.filter((o) => o.i !== w.id)
+                              );
+                              return { xxs: newW };
+                            });
+                          }}
+                        />
+                      </>
+                    }
+                    styles={{
+                      title: {
+                        cursor: "grab",
+                      },
+                      body: {
+                        height: "calc(100% - 38px)",
+                      },
+                    }}
+                  >
+                    {mapToComp[w.key]}
+                  </Card>
+                </div>
+              );
+            })}
+          </ResponsiveReactGridLayout>
+        </GridLayoutWrapper>
       </main>
     </div>
   );
