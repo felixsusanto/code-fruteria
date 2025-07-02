@@ -10,11 +10,18 @@ export const getInitialTheme = () => {
   const stored = localStorage.getItem(THEME_KEY);
   return stored as ThemeOption;
 };
+
+export interface UserDataType {
+  user: string;
+  email: string;
+}
+
 interface AppContextProps {
   theme: ThemeOption;
   setTheme: (v: ThemeOption) => void;
   loggedIn: boolean;
   setLoggedIn: (v: boolean) => void;
+  userData?: UserDataType;
 }
 export const AppContext = React.createContext<AppContextProps>({
   theme: "dark",

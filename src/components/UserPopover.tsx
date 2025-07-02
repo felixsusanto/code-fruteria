@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Typography } from "antd";
 import { ThemeToggleButton } from "./ThemeToggleButton";
-import type { ThemeOption } from "../context/app";
+import type { ThemeOption, UserDataType } from "../context/app";
 import styled from "styled-components";
 
 interface UserPopoverProps {
-  userInfo: { name: string; email: string };
+  userInfo?: UserDataType;
   onLogout: () => void;
   onCancel: () => void;
   onThemeToggle?: (checked: boolean) => void;
@@ -59,14 +59,14 @@ export const UserPopover: React.FC<UserPopoverProps> = ({
 }) => (
   <div style={popoverContainerStyle}>
     <Typography.Text strong style={{ fontSize: 18, color: "#f5f6fa" }}>
-      {userInfo.name}
+      {userInfo && userInfo.user}
     </Typography.Text>
     <br />
     <Typography.Text
       type="secondary"
       style={{ fontSize: 14, color: "#b0b4c1" }}
     >
-      {userInfo.email}
+      {userInfo && userInfo.email}
     </Typography.Text>
     <div style={dividerStyle} />
     <div style={{ marginBottom: 16, fontSize: 15, color: "#b0b4c1" }}>

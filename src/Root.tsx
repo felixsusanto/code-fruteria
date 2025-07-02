@@ -8,6 +8,7 @@ import {
   THEME_KEY,
   AppContext,
   type ThemeOption,
+  type UserDataType,
 } from "./context/app";
 import { ThemeToggleButton } from "./components/ThemeToggleButton";
 
@@ -91,9 +92,10 @@ const isLoggedIn = () => localStorage.getItem("isLoggedIn") === "true";
  * Root component that handles login state.
  */
 const Root: React.FC = () => {
-  const [theme, setTheme] = useState<ThemeOption>(getInitialTheme());
+  const [theme, setTheme] = useState<ThemeOption|null>(getInitialTheme());
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userData, setUserData] = useState<UserDataType>();
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -111,6 +113,7 @@ const Root: React.FC = () => {
   useEffect(() => {
     if (!theme || theme === "null") {
       setIsModalOpen(true);
+      return;
     }
     localStorage.setItem(THEME_KEY, theme);
     document.body.classList.remove("theme-dark", "theme-light");
@@ -118,7 +121,7 @@ const Root: React.FC = () => {
   }, [theme]);
 
   return (
-    <AppContext.Provider value={{ theme, setTheme, loggedIn, setLoggedIn }}>
+    <AppContext.Provider value={{ theme: theme ?? "dark", setTheme, loggedIn, setLoggedIn, userData }}>
       <ConfigProvider
         theme={{
           components: {
@@ -130,7 +133,7 @@ const Root: React.FC = () => {
             colorBgBase: theme === "dark" ? "#232b3e" : "#F5F5F5",
           },
           algorithm:
-            theme === "dark"
+            theme === "dark" || theme === "null" || theme === null
               ? antdTheme.darkAlgorithm
               : antdTheme.defaultAlgorithm,
         }}
@@ -139,7 +142,10 @@ const Root: React.FC = () => {
         {loggedIn ? (
           <App />
         ) : (
-          <LoginComponent onLoginSuccess={() => setLoggedIn(true)} />
+          <LoginComponent onLoginSuccess={(u) => {
+            setUserData(u);
+            setLoggedIn(true);
+          }} />
         )}
       </ConfigProvider>
       <Modal

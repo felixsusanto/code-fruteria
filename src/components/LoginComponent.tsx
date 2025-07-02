@@ -3,6 +3,7 @@ import { Form, Input, Button, Typography, Alert, Card } from "antd";
 import type { FormProps } from "antd";
 
 import styled from "styled-components";
+import type { UserDataType } from "../context/app";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -17,7 +18,7 @@ type FieldType = {
 };
 
 interface LoginComponentProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (data: UserDataType) => void;
 }
 
 export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
@@ -38,10 +39,16 @@ export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
         body: JSON.stringify({ username, password }),
       })
         .then(async (res) => {
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            const message = errorData.message || `Login failed (${res.status})`;
+            throw new Error(message);
+          }
           return res.json();
         })
-        .then(() => {
-          props.onLoginSuccess();
+        .then((res) => {
+          const userData = res as UserDataType;
+          props.onLoginSuccess(userData);
         })
         .catch((err) => {
           // "Failed to fetch" is a common message for network errors in most browsers,

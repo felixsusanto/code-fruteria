@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button } from "antd";
 import { SmileFilled } from "@ant-design/icons";
 import { UserPopover } from "./UserPopover";
-import type { ThemeOption } from "../context/app";
+import { AppContext, type ThemeOption } from "../context/app";
 
 // Add these props to the component's props type/interface:
 interface UserProfileProps {
@@ -18,12 +18,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
   theme,
 }) => {
   const [visible, setVisible] = useState(false);
-
+  const { userData } = useContext(AppContext);
   // You can fetch/display real user info here if available
-  const userInfo = {
-    name: "User",
-    email: "user@email.com",
-  };
+  
 
   const handleOpen = () => setVisible(true);
   const handleClose = () => setVisible(false);
@@ -75,7 +72,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <UserPopover
-              userInfo={userInfo}
+              userInfo={userData}
               onLogout={onLogout}
               onCancel={handleClose}
               onThemeToggle={onThemeToggle}

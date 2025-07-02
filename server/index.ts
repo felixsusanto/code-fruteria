@@ -10,9 +10,10 @@ app.use(express.json());
 app.post("/auth", (req, res) => {
   const { username, password } = req.body;
   if (username !== "admin" || password !== "1234") {
-    return res.status(401).json({ message: "Invalid credentials" });
+    res.status(401).json({ message: "Invalid credentials" });
+    return;
   }
-  res.json({ message: "Authorization successful", username });
+  res.json({ message: "Authorization successful", user: username, email: `${username}@somemail.com` });
 });
 
 app.listen(port, () => {
