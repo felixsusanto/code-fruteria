@@ -30,6 +30,10 @@ const GlobalStyle = createGlobalStyle`
       padding-inline-start: 0;
     }
   }
+  .theme-dark .react-grid-item > .react-resizable-handle::after {
+    border-right: 2px solid rgb(255 255 255 / 40%);
+    border-bottom: 2px solid rgba(255 255 255 / 40%);
+  }
     // Light Theme
   .theme-light {
     --primary-color: #4CAF50;

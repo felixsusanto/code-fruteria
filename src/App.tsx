@@ -17,18 +17,24 @@ import {
   Avatar,
   Button,
   Card,
+  Divider,
+  Dropdown,
   Flex,
   Layout,
   Menu,
+  Modal,
   Space,
   theme,
   Typography,
+  type MenuProps,
 } from "antd";
 import { produce } from "immer";
 import Icon, {
   CloseOutlined,
   HolderOutlined,
+  LogoutOutlined,
   MenuOutlined,
+  SlidersTwoTone,
   UserOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
@@ -36,6 +42,7 @@ import { CandlestickChart } from "./components/CandlestickChart";
 import { Header, Content } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { FullHeightWrapper } from "./components/UtilityComponent";
+import { ThemeToggleButton } from "./components/ThemeToggleButton";
 
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -391,9 +398,11 @@ export const AppOld: FC = () => {
 const Info = styled.div`
   color: #888;
   text-align: center;
-  margin-top: 2rem;
   position: absolute;
-  width: 100%;
+  top: 0;
+  width: 50%;
+  left: 50%;
+  transform: translateX(-50%);
   top: 60px;
 `;
 
@@ -401,7 +410,7 @@ const NAV_BAR_HEIGHT = 56; // px, must match your nav bar minHeight
 
 const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
 
-const ExtraElement = styled.span`
+const ExtraElementWrapper = styled.span`
   display: flex;
   width: 100%;
   cursor: grab;
@@ -410,11 +419,90 @@ const ExtraElement = styled.span`
   }
 `;
 
-export const App: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+interface ExtraElementProps {
+  id: string;
+  title: string;
+  isDragged?: boolean;
+  onDragStart?: (e: DragEvent<HTMLSpanElement>) => void;
+  onDragEnd?: (e: DragEvent<HTMLSpanElement>) => void;
+}
+
+const ExtraElement: React.FC<ExtraElementProps> = (props) => {
   const {
-    token: { colorBgContainer, borderRadiusLG, fontSizeHeading4, paddingLG },
+    token: { colorPrimaryActive, borderRadiusSM },
   } = theme.useToken();
+  return (
+    <ExtraElementWrapper
+      draggable
+      style={{
+        borderRadius: borderRadiusSM,
+        padding: `0 ${borderRadiusSM}px`,
+        background: props.isDragged ? colorPrimaryActive : undefined,
+      }}
+      onDragStart={props.onDragStart}
+      onDragEnd={props.onDragEnd}
+    >
+      <span className="stretch">{props.title}</span> <HolderOutlined />
+    </ExtraElementWrapper>
+  );
+};
+
+export const AppNew: React.FC = () => {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const [dragNavPanelKey, setDragNavPanelKey] = useState<string | null>(null);
+  const [layouts, setLayouts] = useState<Layouts>({ xxs: [] });
+  const [widgets, setWidgets] = useState<Widget[]>([]);
+  const {
+    theme: themeContext,
+    setTheme,
+    setLoggedIn,
+    userData,
+  } = React.useContext(AppContext);
+  const {
+    token: {
+      colorBgContainer,
+      fontSizeHeading4,
+      paddingLG,
+      colorBgElevated,
+      borderRadiusLG,
+      boxShadowSecondary,
+    },
+  } = theme.useToken();
+  const items: MenuProps["items"] = React.useMemo(
+    () => [
+      {
+        label: (
+          <Button
+            type="primary"
+            danger
+            block
+            onClick={() => setLoggedIn(false)}
+          >
+            <LogoutOutlined />{" "}
+            Log Out
+          </Button>
+        ),
+        key: "logout",
+      },
+    ],
+    []
+  );
+  const onNavDragStart = (key: string) => (e: DragEvent<HTMLSpanElement>) => {
+    setDragNavPanelKey(key);
+    e.dataTransfer.setData("panelKey", key);
+  };
+  const onDragEnd = React.useCallback(() => setDragNavPanelKey(null), []);
+  const contentStyle: React.CSSProperties = {
+    backgroundColor: colorBgElevated,
+    borderRadius: borderRadiusLG,
+    boxShadow: boxShadowSecondary,
+    width: 200,
+  };
+  const menuStyle: React.CSSProperties = {
+    boxShadow: "none",
+    backgroundColor: "none",
+  };
 
   return (
     <FullHeightWrapper>
@@ -435,27 +523,52 @@ export const App: React.FC = () => {
                 key: "1",
                 icon: <Icon component={TermsIcon as any} />,
                 extra: (
-                  <ExtraElement draggable>
-                    <span className="stretch">Fruit Book</span> <HolderOutlined />
-                  </ExtraElement>
+                  <ExtraElement
+                    isDragged={dragNavPanelKey === "fruitbook"}
+                    onDragStart={onNavDragStart("fruitbook")}
+                    onDragEnd={onDragEnd}
+                    title="Fruit Book"
+                    id="fruitbook"
+                  />
                 ),
               },
               {
                 key: "2",
                 icon: <Icon component={FruitViewIcon as any} />,
                 extra: (
-                  <ExtraElement draggable>
-                    <span className="stretch">Fruit View</span> <HolderOutlined />
-                  </ExtraElement>
+                  <ExtraElement
+                    isDragged={dragNavPanelKey === "fruitview"}
+                    onDragStart={onNavDragStart("fruitview")}
+                    onDragEnd={onDragEnd}
+                    title="Fruit View"
+                    id="fruitview"
+                  />
                 ),
               },
               {
                 key: "3",
                 icon: <Icon component={AboutIcon as any} />,
                 extra: (
-                  <ExtraElement draggable>
-                    <span className="stretch">About</span> <HolderOutlined />
-                  </ExtraElement>
+                  <ExtraElement
+                    isDragged={dragNavPanelKey === "about"}
+                    onDragStart={onNavDragStart("about")}
+                    onDragEnd={onDragEnd}
+                    title="About"
+                    id="about"
+                  />
+                ),
+              },
+              {
+                key: "4",
+                icon: <SlidersTwoTone />,
+                extra: (
+                  <ExtraElement
+                    isDragged={dragNavPanelKey === "historic"}
+                    onDragStart={onNavDragStart("historic")}
+                    onDragEnd={onDragEnd}
+                    title="Price History"
+                    id="historic"
+                  />
                 ),
               },
             ]}
@@ -484,23 +597,129 @@ export const App: React.FC = () => {
                 </Typography.Text>
               </Flex>
               <Flex align="center" style={{ paddingRight: paddingLG }}>
-                <Avatar size={"default"} icon={<UserOutlined />} />
+                <ThemeToggleButton
+                  theme={themeContext}
+                  onThemeToggle={(checked) =>
+                    setTheme(checked ? "dark" : "light")
+                  }
+                />
+                <Dropdown
+                  menu={{ items }}
+                  trigger={["click"]}
+                  popupRender={(menu) => (
+                    <div style={contentStyle}>
+                      <Space style={{ padding: 8}} direction="vertical">
+                        <Typography.Text>Welcome, <strong>{userData?.user}</strong></Typography.Text>
+                        <Typography.Text strong type="secondary">{userData?.email}</Typography.Text>
+                      </Space>
+                      
+                      
+                      <Divider style={{ margin: 0 }} />
+                      {React.cloneElement(
+                        menu as React.ReactElement<{
+                          style: React.CSSProperties;
+                        }>,
+                        { style: menuStyle }
+                      )}
+                    </div>
+                  )}
+                >
+                  <Avatar size={"default"} icon={<UserOutlined />} />
+                </Dropdown>
               </Flex>
             </Flex>
           </Header>
-          <Content
-            style={{
-              margin: "24px 16px",
-              padding: 24,
-              minHeight: 280,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            Content
+          <Content style={{ position: "relative" }}>
+            {widgets.length === 0 && (
+              <Info>
+                No panels open.
+                <br />
+                Drag one from the navigation bar.
+              </Info>
+            )}
+            <GridLayoutWrapper>
+              <ResponsiveReactGridLayout
+                isDroppable
+                draggableHandle=".ant-card-head-title"
+                rowHeight={70}
+                layouts={layouts}
+                onDropDragOver={() => ({ w: 6, h: 5 })}
+                breakpoints={{ xxs: 0 }}
+                cols={{ xxs: 12 }}
+                measureBeforeMount={false}
+                onDrop={(_, item, e) => {
+                  const event = e as unknown as DragEvent;
+                  const id = `${Date.now()}`;
+                  const panelType = event.dataTransfer.getData("panelKey");
+                  const newItem = { ...item, i: id };
+                  setLayouts((prev) => ({
+                    xxs: [...prev.xxs, newItem],
+                  }));
+                  setWidgets((prev) => [...prev, { id, key: panelType }]);
+                }}
+                style={{ flex: 1 }}
+              >
+                {widgets.map((w) => {
+                  const mapToComp: Record<string, React.ReactNode> = {
+                    fruitbook: <FruitBook />,
+                    fruitview: <FruitViewPanel />,
+                    historic: <CandlestickChart fruit="Banana" />,
+                    about: <AboutPanel />,
+                  };
+                  const mapToTitle: Record<string, string> = {
+                    fruitbook: "Fruit Book",
+                    fruitview: "Fruit View",
+                    historic: "Historic Price",
+                    about: "About",
+                  };
+                  return (
+                    <div key={w.id} style={{ overflow: "hidden" }}>
+                      <Card
+                        size="small"
+                        style={{ height: "100%" }}
+                        title={mapToTitle[w.key]}
+                        extra={
+                          <>
+                            <CloseOutlined
+                              data-testid="close"
+                              onClick={() => {
+                                setWidgets((prev) => {
+                                  const newW = produce(prev, (draft) =>
+                                    draft.filter((o) => o.id !== w.id)
+                                  );
+                                  return newW;
+                                });
+                                setLayouts((prev) => {
+                                  const newW = produce(prev.xxs, (draft) =>
+                                    draft.filter((o) => o.i !== w.id)
+                                  );
+                                  return { xxs: newW };
+                                });
+                              }}
+                            />
+                          </>
+                        }
+                        styles={{
+                          title: {
+                            cursor: "grab",
+                          },
+                          body: {
+                            height: "calc(100% - 38px)",
+                          },
+                        }}
+                      >
+                        {mapToComp[w.key]}
+                      </Card>
+                    </div>
+                  );
+                })}
+              </ResponsiveReactGridLayout>
+            </GridLayoutWrapper>
           </Content>
         </Layout>
       </Layout>
     </FullHeightWrapper>
   );
 };
+
+export const App = AppNew;

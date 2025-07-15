@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FruitViewIcon: React.FC<{ size?: number }> = ({ size = 22 }) => (
+const FruitViewIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
     <circle cx="11" cy="11" r="9" stroke="#FFD600" strokeWidth="2" fill="#FFF9C4"/>
     <ellipse cx="11" cy="11" rx="5" ry="7" fill="#FFEB3B" stroke="#FBC02D" strokeWidth="1.5"/>
