@@ -9,25 +9,34 @@ import { panelList } from "./panels/panelList";
 import AboutPanel from "./panels/AboutPanel";
 import { FruitBook } from "./panels/FruitBookPanel";
 import { FruitViewPanel } from "./panels/FruitViewPanel";
-import { AgCharts } from "ag-charts-react";
-import type { AgChartOptions } from "ag-charts-enterprise";
 import "ag-charts-enterprise";
 import { Responsive, WidthProvider, type Layouts } from "react-grid-layout";
 import "/node_modules/react-grid-layout/css/styles.css";
 import "/node_modules/react-resizable/css/styles.css";
-import { Card } from "antd";
+import {
+  Avatar,
+  Button,
+  Card,
+  Flex,
+  Layout,
+  Menu,
+  Space,
+  theme,
+  Typography,
+} from "antd";
 import { produce } from "immer";
-import { CloseOutlined } from "@ant-design/icons";
+import Icon, {
+  CloseOutlined,
+  HolderOutlined,
+  MenuOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import styled from "styled-components";
+import { CandlestickChart } from "./components/CandlestickChart";
+import { Header, Content } from "antd/es/layout/layout";
+import Sider from "antd/es/layout/Sider";
+import { FullHeightWrapper } from "./components/UtilityComponent";
 
-interface HistoricValue {
-  date: string;
-  high: number;
-  low: number;
-  open: number;
-  close: number;
-  adjClose: number;
-}
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const GridLayoutWrapper = styled.div`
@@ -46,7 +55,7 @@ interface Widget {
 /**
  * Main application component.
  */
-export const App: FC = () => {
+export const AppOld: FC = () => {
   const [dragNavPanelKey, setDragNavPanelKey] = useState<string | null>(null);
   const [navOpen, setNavOpen] = useState<boolean>(false);
   const [layouts, setLayouts] = useState<Layouts>({ xxs: [] });
@@ -186,6 +195,7 @@ export const App: FC = () => {
         }}
       >
         {/* Top nav branding */}
+
         <div
           style={{
             width: "100%",
@@ -295,8 +305,6 @@ export const App: FC = () => {
             Drag one from the navigation bar.
           </Info>
         )}
-        {true && (
-          
         <GridLayoutWrapper>
           <ResponsiveReactGridLayout
             isDroppable
@@ -375,8 +383,6 @@ export const App: FC = () => {
             })}
           </ResponsiveReactGridLayout>
         </GridLayoutWrapper>
-        )}
-        
       </main>
     </div>
   );
@@ -395,49 +401,106 @@ const NAV_BAR_HEIGHT = 56; // px, must match your nav bar minHeight
 
 const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
 
-const getData = async () => {
-  const response = await fetch("http://localhost:3000/historic/Banana?id=T001&from=2022-01-01&to=2022-03-31");
-  return await (response.json() as Promise<HistoricValue[]>);
-    
-};
+const ExtraElement = styled.span`
+  display: flex;
+  width: 100%;
+  cursor: grab;
+  .stretch {
+    flex: 1;
+  }
+`;
 
-interface CandlestickChartProps {
-  fruit: string;
-}
+export const App: React.FC = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const {
+    token: { colorBgContainer, borderRadiusLG, fontSizeHeading4, paddingLG },
+  } = theme.useToken();
 
-const CandlestickChart: React.FC<CandlestickChartProps> = (props) => {
-  React.useEffect(() => {
-    getData().then((data) => {
-      const newData = data.map((o) => ({
-        ...o,
-        date: new Date(o.date),
-      }))
-      setOptions((prev) => ({...prev, data: newData }))
-    });
-  }, []);
-  const [options, setOptions] = useState<AgChartOptions>({
-    theme: "ag-default-dark",
-    title: {
-      text: props.fruit + " Historic Prices",
-    },
-    subtitle: {
-      text: "Daily High and Low Prices",
-    },
-    footnote: {
-      text: "1 Aug 2023 - 1 Nov 2023",
-    },
-    series: [
-      {
-        type: "candlestick",
-        xKey: "date",
-        xName: "Date",
-        lowKey: "low",
-        highKey: "high",
-        openKey: "open",
-        closeKey: "close",
-      },
-    ],
-  });
-
-  return <AgCharts options={options} style={{height: "100%"}}/>;
+  return (
+    <FullHeightWrapper>
+      <Layout style={{ height: "100%" }}>
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          collapsedWidth={0}
+        >
+          <Menu
+            className="override-menu"
+            theme="dark"
+            selectable={false}
+            mode="inline"
+            items={[
+              {
+                key: "1",
+                icon: <Icon component={TermsIcon as any} />,
+                extra: (
+                  <ExtraElement draggable>
+                    <span className="stretch">Fruit Book</span> <HolderOutlined />
+                  </ExtraElement>
+                ),
+              },
+              {
+                key: "2",
+                icon: <Icon component={FruitViewIcon as any} />,
+                extra: (
+                  <ExtraElement draggable>
+                    <span className="stretch">Fruit View</span> <HolderOutlined />
+                  </ExtraElement>
+                ),
+              },
+              {
+                key: "3",
+                icon: <Icon component={AboutIcon as any} />,
+                extra: (
+                  <ExtraElement draggable>
+                    <span className="stretch">About</span> <HolderOutlined />
+                  </ExtraElement>
+                ),
+              },
+            ]}
+          />
+        </Sider>
+        <Layout>
+          <Header style={{ padding: 0, background: colorBgContainer }}>
+            <Flex align="center" style={{ width: "100%" }}>
+              <Flex align="center" style={{ flex: 1 }}>
+                <Button
+                  type="text"
+                  icon={collapsed ? <MenuOutlined /> : <CloseOutlined />}
+                  onClick={() => setCollapsed(!collapsed)}
+                  style={{
+                    fontSize: "16px",
+                    width: 64,
+                    height: 64,
+                  }}
+                />
+                <Typography.Text
+                  className="mono"
+                  strong
+                  style={{ fontSize: fontSizeHeading4 }}
+                >
+                  FRUTERIA
+                </Typography.Text>
+              </Flex>
+              <Flex align="center" style={{ paddingRight: paddingLG }}>
+                <Avatar size={"default"} icon={<UserOutlined />} />
+              </Flex>
+            </Flex>
+          </Header>
+          <Content
+            style={{
+              margin: "24px 16px",
+              padding: 24,
+              minHeight: 280,
+              background: colorBgContainer,
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            Content
+          </Content>
+        </Layout>
+      </Layout>
+    </FullHeightWrapper>
+  );
 };

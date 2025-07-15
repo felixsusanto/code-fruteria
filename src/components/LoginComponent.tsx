@@ -1,15 +1,8 @@
 import React from "react";
 import { Form, Input, Button, Typography, Alert, Card, Flex } from "antd";
 import type { FormProps } from "antd";
-
-import styled from "styled-components";
+import { FullHeightWrapper } from "./UtilityComponent";
 import type { UserDataType } from "../context/app";
-
-const SimpleWrapper = styled.div`
-  height: 100dvh;
-  height: 100svh;
-  height: 100vh;
-`;
 
 type FieldType = {
   username?: string;
@@ -60,7 +53,7 @@ export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
     [props]
   );
   return (
-    <SimpleWrapper>
+    <FullHeightWrapper>
       <Flex
         style={{
           height: "100%",
@@ -101,6 +94,6 @@ export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
           </Form>
         </Card>
       </Flex>
-    </SimpleWrapper>
+    </FullHeightWrapper>
   );
 };

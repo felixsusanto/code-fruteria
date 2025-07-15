@@ -23,6 +23,13 @@ const GlobalStyle = createGlobalStyle`
   .mono {
     font-family: monospace;
   }
+  .override-menu.ant-menu{
+    .ant-menu-item-extra {
+      width: 100%;
+      margin-inline-start: 0;
+      padding-inline-start: 0;
+    }
+  }
     // Light Theme
   .theme-light {
     --primary-color: #4CAF50;
