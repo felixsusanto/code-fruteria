@@ -9,7 +9,9 @@ import { panelList } from "./panels/panelList";
 import AboutPanel from "./panels/AboutPanel";
 import { FruitBook } from "./panels/FruitBookPanel";
 import { FruitViewPanel } from "./panels/FruitViewPanel";
-
+import { AgCharts } from "ag-charts-react";
+import type { AgChartOptions } from "ag-charts-enterprise";
+import "ag-charts-enterprise";
 import { Responsive, WidthProvider, type Layouts } from "react-grid-layout";
 import "/node_modules/react-grid-layout/css/styles.css";
 import "/node_modules/react-resizable/css/styles.css";
@@ -18,6 +20,14 @@ import { produce } from "immer";
 import { CloseOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 
+interface HistoricValue {
+  date: string;
+  high: number;
+  low: number;
+  open: number;
+  close: number;
+  adjClose: number;
+}
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const GridLayoutWrapper = styled.div`
@@ -140,6 +150,8 @@ export const App: FC = () => {
                   ) : panel.key === "fruitview" ? (
                     <FruitViewIcon />
                   ) : panel.key === "about" ? (
+                    <AboutIcon />
+                  ) : panel.key === "historic" ? (
                     <AboutIcon />
                   ) : null}
                 </span>
@@ -283,6 +295,8 @@ export const App: FC = () => {
             Drag one from the navigation bar.
           </Info>
         )}
+        {true && (
+          
         <GridLayoutWrapper>
           <ResponsiveReactGridLayout
             isDroppable
@@ -309,11 +323,13 @@ export const App: FC = () => {
               const mapToComp: Record<string, React.ReactNode> = {
                 fruitbook: <FruitBook />,
                 fruitview: <FruitViewPanel />,
+                historic: <CandlestickChart fruit="Banana" />,
                 about: <AboutPanel />,
               };
               const mapToTitle: Record<string, string> = {
                 fruitbook: "Fruit Book",
                 fruitview: "Fruit View",
+                historic: "Historic Price",
                 about: "About",
               };
               return (
@@ -359,6 +375,8 @@ export const App: FC = () => {
             })}
           </ResponsiveReactGridLayout>
         </GridLayoutWrapper>
+        )}
+        
       </main>
     </div>
   );
@@ -376,3 +394,50 @@ const Info = styled.div`
 const NAV_BAR_HEIGHT = 56; // px, must match your nav bar minHeight
 
 const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
+
+const getData = async () => {
+  const response = await fetch("http://localhost:3000/historic/Banana?id=T001&from=2022-01-01&to=2022-03-31");
+  return await (response.json() as Promise<HistoricValue[]>);
+    
+};
+
+interface CandlestickChartProps {
+  fruit: string;
+}
+
+const CandlestickChart: React.FC<CandlestickChartProps> = (props) => {
+  React.useEffect(() => {
+    getData().then((data) => {
+      const newData = data.map((o) => ({
+        ...o,
+        date: new Date(o.date),
+      }))
+      setOptions((prev) => ({...prev, data: newData }))
+    });
+  }, []);
+  const [options, setOptions] = useState<AgChartOptions>({
+    theme: "ag-default-dark",
+    title: {
+      text: props.fruit + " Historic Prices",
+    },
+    subtitle: {
+      text: "Daily High and Low Prices",
+    },
+    footnote: {
+      text: "1 Aug 2023 - 1 Nov 2023",
+    },
+    series: [
+      {
+        type: "candlestick",
+        xKey: "date",
+        xName: "Date",
+        lowKey: "low",
+        highKey: "high",
+        openKey: "open",
+        closeKey: "close",
+      },
+    ],
+  });
+
+  return <AgCharts options={options} style={{height: "100%"}}/>;
+};
