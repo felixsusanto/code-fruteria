@@ -20,6 +20,9 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
   }
+  .mono {
+    font-family: monospace;
+  }
     // Light Theme
   .theme-light {
     --primary-color: #4CAF50;
@@ -129,6 +132,7 @@ const Root: React.FC = () => {
             },
           },
           token: {
+            // fontFamily: "monospace",
             colorBgBase: theme === "dark" || themeIsNull ? "#232b3e" : "#F5F5F5",
           },
           algorithm:
