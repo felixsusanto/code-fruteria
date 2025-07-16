@@ -64,6 +64,9 @@ const Root: React.FC = () => {
   useEffect(() => {
     if (loggedIn) {
       localStorage.setItem("isLoggedIn", "true");
+    } else {
+      localStorage.removeItem("isLoggedIn");
+      setUserData(undefined);
     }
   }, [loggedIn]);
 
