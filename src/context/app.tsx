@@ -16,13 +16,14 @@ export interface UserDataType {
   email: string;
 }
 
-interface AppContextProps {
+export interface AppContextProps {
   theme: ThemeOption;
   setTheme: (v: ThemeOption) => void;
   loggedIn: boolean;
   setLoggedIn: (v: boolean) => void;
   userData?: UserDataType;
 }
+
 export const AppContext = React.createContext<AppContextProps>({
   theme: "dark",
   setTheme: () => {},

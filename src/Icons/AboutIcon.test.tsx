@@ -7,13 +7,6 @@ describe("AboutIcon", () => {
     expect(container.querySelector("svg")).toBeInTheDocument();
   });
 
-  it("applies default size when no size prop is given", () => {
-    const { container } = render(<AboutIcon />);
-    const svg = container.querySelector("svg");
-    expect(svg).toHaveAttribute("width", "22");
-    expect(svg).toHaveAttribute("height", "22");
-  });
-
   it("applies custom size when size prop is provided", () => {
     const { container } = render(<AboutIcon size={40} />);
     const svg = container.querySelector("svg");

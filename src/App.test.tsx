@@ -1,80 +1,121 @@
-import { render, screen, act } from "@testing-library/react";
-import UserEvent from "@testing-library/user-event";
-import { App, ResponsiveReactGridLayout as rggl } from "./App";
-import up from "./components/UserProfile";
+import { render, screen, fireEvent, act } from "@testing-library/react";
+import { App } from "./App";
+import { AppContext } from "./context/app";
 
-// Mock window.matchMedia
-beforeAll(() => {
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(), // deprecated
-      removeListener: jest.fn(), // deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
+// Mock dependencies
+jest.mock("./Icons/AboutIcon", () => () => <span data-testid="about-icon" />);
+jest.mock("./Icons/TermsIcon", () => () => <span data-testid="terms-icon" />);
+jest.mock("./Icons/FruitViewIcon", () => () => <span data-testid="fruitview-icon" />);
+jest.mock("./panels/AboutPanel", () => () => <div>AboutPanel</div>);
+jest.mock("./panels/FruitBookPanel", () => ({ FruitBook: () => <div>FruitBookPanel</div> }));
+jest.mock("./panels/FruitViewPanel", () => ({ FruitViewPanel: () => <div>FruitViewPanel</div> }));
+jest.mock("./components/CandlestickChart", () => ({
+  CandlestickChart: () => <div>CandlestickChart</div>,
+}));
+jest.mock("./components/ThemeToggleButton", () => ({
+  ThemeToggleButton: ({ onThemeToggle }: any) => (
+    <button data-testid="theme-toggle" onClick={() => onThemeToggle(true)}>
+      Toggle Theme
+    </button>
+  ),
+}));
+jest.mock("react-grid-layout", () => {
+  const Responsive = ({ children }: any) => <div>{children}</div>;
+  Responsive.displayName = "Responsive";
+  return {
+    Responsive,
+    WidthProvider: (Comp: any) => Comp,
+  };
 });
-
-const ResponsiveReactGridLayout = rggl as unknown as jest.Mock;
-const UserProfile = up as unknown as jest.Mock;
-
-jest.mock("react-grid-layout", () => ({
-  Responsive: "",
-  WidthProvider: () =>
-    jest.fn().mockImplementation(({ children }) => (
-      <main>
-        WidthProvider
+jest.mock("antd", () => {
+  const antd = jest.requireActual("antd");
+  return {
+    ...antd,
+    Menu: (props: any) => <div data-testid="menu">{props.items?.map((item: any) => <div key={item.key}>{item.extra}</div>)}</div>,
+    Sider: ({ children, ...rest }: any) => <div data-testid="sider">{children}</div>,
+    Layout: ({ children }: any) => <div data-testid="layout">{children}</div>,
+    Header: ({ children }: any) => <div data-testid="header">{children}</div>,
+    Content: ({ children }: any) => <div data-testid="content">{children}</div>,
+    Avatar: ({ icon }: any) => <div data-testid="avatar">{icon}</div>,
+    Dropdown: ({ children, ...rest }: any) => <div data-testid="dropdown">{children}</div>,
+    Button: ({ children, ...rest }: any) => <button {...rest}>{children}</button>,
+    Card: ({ children, title, extra, ...rest }: any) => (
+      <div data-testid="card">
+        <div data-testid="card-title">{title}{extra}</div>
         <div>{children}</div>
-      </main>
-    )),
+      </div>
+    ),
+    Divider: () => <div data-testid="divider" />,
+    Typography: {
+      Text: ({ children, ...rest }: any) => <span {...rest}>{children}</span>,
+    },
+    Flex: ({ children }: any) => <div>{children}</div>,
+    Space: ({ children }: any) => <div>{children}</div>,
+  };
+});
+jest.mock("antd/es/layout/layout", () => ({
+  Header: ({ children }: any) => <div data-testid="header">{children}</div>,
+  Content: ({ children }: any) => <div data-testid="content">{children}</div>,
+}));
+jest.mock("antd/es/layout/Sider", () => ({ children }: any) => <div data-testid="sider">{children}</div>);
+jest.mock("./components/UtilityComponent", () => ({
+  FullHeightWrapper: ({ children }: any) => <div>{children}</div>,
 }));
 
-jest.mock("./components/UserProfile", () => ({
-  __esModule: true,
-  default: jest.fn().mockImplementation(() => <div>UserProfile</div>),
-}));
+const mockSetTheme = jest.fn();
+const mockSetLoggedIn = jest.fn();
 
-describe("<App />", () => {
-  it("should render without error", async () => {
-    const user = UserEvent.setup();
-    render(<App />);
-    expect(UserProfile).toHaveBeenCalled();
-    const [{ onLogout, onThemeToggle }] = UserProfile.mock.lastCall ?? [];
-    expect(onLogout).toBeTruthy();
-    expect(onThemeToggle).toBeTruthy();
-    onLogout();
-    onThemeToggle(true);
-    onThemeToggle(false);
-    const toggle = screen.getByRole("button", {
-      name: /toggle navigation/i,
+const renderApp = (contextOverrides = {}) =>
+  render(
+    <AppContext.Provider
+      value={{
+        theme: "light",
+        setTheme: mockSetTheme,
+        setLoggedIn: mockSetLoggedIn,
+        userData: { user: "TestUser", email: "test@example.com" },
+        ...contextOverrides,
+      } as any}
+    >
+      <App />
+    </AppContext.Provider>
+  );
+
+describe("App", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+  it("renders sidebar and header", () => {
+    renderApp();
+    expect(screen.getByTestId("sider")).toBeInTheDocument();
+    expect(screen.getByTestId("header")).toBeInTheDocument();
+    expect(screen.getByText("FRUTERIA")).toBeInTheDocument();
+  });
+
+  it("shows info when no panels are open", () => {
+    renderApp();
+    expect(screen.getByText(/No panels open/i)).toBeInTheDocument();
+    expect(screen.getByText(/Drag one from the navigation bar/i)).toBeInTheDocument();
+  });
+
+  it("toggles theme when theme button is clicked", () => {
+    renderApp();
+    fireEvent.click(screen.getByTestId("theme-toggle"));
+    expect(mockSetTheme).toHaveBeenCalledWith("dark");
+  });
+
+  it("logs out after inactivity", () => {
+    const removeItemSpy = jest.spyOn(window.localStorage.__proto__, "removeItem");
+    renderApp();
+    act(() => {
+      jest.advanceTimersByTime(5 * 60 * 1000 + 1000);
     });
-    await user.click(toggle);
-    expect(ResponsiveReactGridLayout).toHaveBeenCalled();
-    const [{ onDropDragOver, onDrop }] =
-      ResponsiveReactGridLayout.mock.lastCall ?? [];
-    expect(onDropDragOver).toBeDefined();
-    expect(onDrop).toBeDefined();
-    expect(onDropDragOver()).toBeTruthy();
-    const item = {
-      w: 6,
-      h: 5,
-      x: 0,
-      y: 0,
-      i: "__dropping-elem__",
-      moved: false,
-      static: false,
-      isDraggable: true,
-    };
-    act(() =>
-      onDrop([], item, { dataTransfer: { getData: () => "fruitview" } })
-    );
-    // debug(undefined, 30000);
-    const close = screen.getByTestId("close");
-    await user.click(close);
+    expect(removeItemSpy).toHaveBeenCalledWith("isLoggedIn");
   });
 });

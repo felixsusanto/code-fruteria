@@ -21,7 +21,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const { userData } = useContext(AppContext);
   // You can fetch/display real user info here if available
   
-
   const handleOpen = () => setVisible(true);
   const handleClose = () => setVisible(false);
 
