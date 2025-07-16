@@ -17,7 +17,6 @@ export const ThemeToggleButton: React.FC<{
       unCheckedChildren={<SunFilled />}
       checked={theme === "dark"}
       onChange={onThemeToggle}
-      defaultChecked
     />
   </ThemeSwitch>
 );

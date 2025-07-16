@@ -270,6 +270,7 @@ export const App: React.FC = () => {
                     fontSize: "16px",
                     width: 64,
                     height: 64,
+                    marginRight: 8,
                   }}
                 />
                 <Typography.Text

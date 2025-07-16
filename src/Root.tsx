@@ -34,58 +34,6 @@ const GlobalStyle = createGlobalStyle`
     border-right: 2px solid rgb(255 255 255 / 40%);
     border-bottom: 2px solid rgba(255 255 255 / 40%);
   }
-    // Light Theme
-  .theme-light {
-    --primary-color: #4CAF50;
-    --secondary-color: #FFC107;
-    --background-color: #D2D7E5;
-    --text-color: #333;
-    --border-radius: 4px;
-
-    background: var(--background-color);
-    color: var(--text-color);
-  }
-
-  // Dark Theme
-  .theme-dark {
-    --primary-color: #81C784;
-    --secondary-color: #FFD54F;
-    --background-color: #232b3e;
-    --text-color: #F5F5F5;
-    --border-radius: 4px;
-
-    background: var(--background-color);
-    color: var(--text-color);
-  }
-
-  a {
-    color: var(--primary-color);
-    text-decoration: none;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  .button {
-    background: var(--primary-color);
-    color: #fff;
-    border: none;
-    border-radius: var(--border-radius);
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: background 0.2s;
-    &:hover {
-      background: darken(var(--primary-color), 10%);
-    }
-  }
-
-  .header {
-    background: var(--secondary-color);
-    padding: 16px;
-    border-radius: var(--border-radius);
-    color: #fff;
-    font-size: 1.5em;
-  }
 
   .react-grid-item.react-grid-placeholder {
     opacity: 1;
@@ -96,26 +44,21 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-/**
- * Checks if the user is logged in.
- * @returns {boolean}
- */
-const isLoggedIn = () => localStorage.getItem("isLoggedIn") === "true";
+const isLoggedIn = (): boolean => localStorage.getItem("isLoggedIn") === "true";
 
-/**
- * Root component that handles login state.
- */
 const Root: React.FC = () => {
-  const [theme, setTheme] = useState<ThemeOption|null>(getInitialTheme());
+  const [theme, setTheme] = useState<ThemeOption | null>(getInitialTheme());
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState<UserDataType>();
 
   const handleOk = () => {
+    if(!theme) setTheme(theme ?? "light");
     setIsModalOpen(false);
   };
 
   const handleCancel = () => {
+    if(!theme) setTheme(theme ?? "light");
     setIsModalOpen(false);
   };
   useEffect(() => {
@@ -129,25 +72,33 @@ const Root: React.FC = () => {
       setIsModalOpen(true);
     }
     localStorage.setItem(THEME_KEY, theme ?? "null");
-    document.body.classList.remove("theme-dark", "theme-light");
-    document.body.classList.add(`theme-${theme ?? "dark"}`);
   }, [theme]);
-  const themeIsNull = theme === null;
   return (
-    <AppContext.Provider value={{ theme: theme ?? "dark", setTheme, loggedIn, setLoggedIn, userData }}>
+    <AppContext.Provider
+      value={{
+        theme: theme ?? "dark",
+        setTheme,
+        loggedIn,
+        setLoggedIn,
+        userData,
+      }}
+    >
       <ConfigProvider
         theme={{
+          token: {
+            colorBgBase: theme === "dark" ? "#232b3e" : "#F5F5F5",
+            colorWarning: "#ffb300",
+            colorError: "#e57373",
+            colorPrimary: "#7c5fe6",
+            colorInfo: "#7c5fe6",
+          },
           components: {
-            Card: {
-              bodyPaddingSM: 0,
+            Typography: {
+              fontFamilyCode: "'Segoe UI', Arial, sans-serif",
             },
           },
-          token: {
-            // fontFamily: "monospace",
-            colorBgBase: theme === "dark" || themeIsNull ? "#232b3e" : "#F5F5F5",
-          },
           algorithm:
-            theme === "dark" || theme === "null" || themeIsNull
+            theme === "dark"
               ? antdTheme.darkAlgorithm
               : antdTheme.defaultAlgorithm,
         }}
@@ -156,22 +107,24 @@ const Root: React.FC = () => {
         {loggedIn ? (
           <App />
         ) : (
-          <LoginComponent onLoginSuccess={(u) => {
-            setUserData(u);
-            setLoggedIn(true);
-          }} />
+          <LoginComponent
+            onLoginSuccess={(u) => {
+              setUserData(u);
+              setLoggedIn(true);
+            }}
+          />
         )}
       </ConfigProvider>
       <Modal
         title="Theme Selection"
-        closable={{ 'aria-label': 'Custom Close Button' }}
+        closable={{ "aria-label": "Custom Close Button" }}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <ThemeToggleButton 
+        <ThemeToggleButton
           onThemeToggle={(checked) => setTheme(checked ? "dark" : "light")}
-          theme={theme || "dark"}
+          theme={theme ?? "null"}
         />
       </Modal>
     </AppContext.Provider>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, Typography, Alert, Card, Flex } from "antd";
+import { Form, Input, Button, Typography, Alert, Card, Flex, Layout } from "antd";
 import type { FormProps } from "antd";
 import { FullHeightWrapper } from "./UtilityComponent";
 import type { UserDataType } from "../context/app";
@@ -52,48 +52,51 @@ export const LoginComponent: React.FC<LoginComponentProps> = (props) => {
     },
     [props]
   );
+  
   return (
     <FullHeightWrapper>
-      <Flex
-        style={{
-          height: "100%",
-        }}
-        justify="center"
-        align="center"
-      >
-        <Card hoverable style={{ width: 400 }}>
-          <Typography.Title
-            level={2}
-            style={{ textAlign: "center" }}
-            className="mono"
-          >
-            Login
-          </Typography.Title>
-          <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
-            <Form.Item<FieldType>
-              name="username"
-              label="Username"
-              rules={[{ required: true, message: "Please input your username!" }]}
+      <Layout style={{height: "100%"}}>
+        <Flex
+          style={{
+            height: "100%",
+          }}
+          justify="center"
+          align="center"
+        >
+          <Card hoverable style={{ width: 400 }}>
+            <Typography.Title
+              level={2}
+              style={{ textAlign: "center" }}
+              className="mono"
             >
-              <Input autoFocus placeholder="Enter your username" />
-            </Form.Item>
-            <Form.Item<FieldType> name="password" label="Password">
-              <Input.Password placeholder="Enter your password" />
-            </Form.Item>
-            {errMsg && (
-              <Form.Item>
-                <Alert message={errMsg} type="error" showIcon />
+              Login
+            </Typography.Title>
+            <Form layout="vertical" onFinish={handleSubmit} autoComplete="off">
+              <Form.Item<FieldType>
+                name="username"
+                label="Username"
+                rules={[{ required: true, message: "Please input your username!" }]}
+              >
+                <Input autoFocus placeholder="Enter your username" />
               </Form.Item>
-            )}
+              <Form.Item<FieldType> name="password" label="Password">
+                <Input.Password placeholder="Enter your password" />
+              </Form.Item>
+              {errMsg && (
+                <Form.Item>
+                  <Alert message={errMsg} type="error" showIcon />
+                </Form.Item>
+              )}
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit" block>
-                Login
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
-      </Flex>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" block>
+                  Login
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </Flex>
+      </Layout>
     </FullHeightWrapper>
   );
 };

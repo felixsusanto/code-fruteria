@@ -25,7 +25,7 @@ export interface AppContextProps {
 }
 
 export const AppContext = React.createContext<AppContextProps>({
-  theme: "dark",
+  theme: "null",
   setTheme: () => {},
   loggedIn: false,
   setLoggedIn: () => {},

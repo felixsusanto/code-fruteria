@@ -1,11 +1,22 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
-import type { ColDef, RowDoubleClickedEvent, GridApi } from "ag-grid-community";
-import { Drawer } from "antd";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import {
+  ModuleRegistry,
+  AllCommunityModule,
+  themeAlpine,
+  colorSchemeDarkBlue,
+} from "ag-grid-community";
+import type {
+  ColDef,
+  RowDoubleClickedEvent,
+  GridApi,
+  RowStyle,
+} from "ag-grid-community";
+import { Drawer, theme as antdTheme } from "antd";
+// import "ag-grid-community/styles/ag-grid.css";
+// import "ag-grid-community/styles/ag-theme-alpine.css";
 import { EnrichmentPanel } from "./EnrichmentPanel";
+import { AppContext } from "../context/app";
 
 // Register ag-grid modules (required for module-based builds)
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -18,6 +29,17 @@ export interface Fruit {
   status: string;
   details: string;
 }
+
+const params = {
+  fontFamily: "monospace",
+  headerFontWeight: 700,
+};
+
+const darkTheme = themeAlpine.withPart(colorSchemeDarkBlue).withParams({
+  ...params,
+  borderRadius: 0,
+});
+const lightTheme = themeAlpine.withParams({ ...params, borderRadius: 0 });
 
 const fruits: Fruit[] = [
   {
@@ -102,37 +124,16 @@ const fruits: Fruit[] = [
   },
 ];
 
-const columnDefs: ColDef[] = [
-  { headerName: "ID", field: "id", minWidth: 90 },
-  { headerName: "Fruit", field: "name", minWidth: 120 },
-  { headerName: "Country", field: "country", minWidth: 120 },
-  { headerName: "Type", field: "type", minWidth: 120 },
-  {
-    headerName: "Status",
-    field: "status",
-    minWidth: 120,
-    cellStyle: (params: { value: string }) => ({
-      color:
-        params.value === "Available"
-          ? "#7c5fe6"
-          : params.value === "Pending"
-          ? "#ffb300"
-          : "#e57373",
-      fontWeight: 700,
-      fontFamily: "monospace",
-      fontSize: 16,
-      background: "#232b3e",
-    }),
-  },
-  { headerName: "Details", field: "details", minWidth: 180 },
-];
-
 const defaultColDef = {
   flex: 1,
   resizable: true,
 };
 
 export const FruitBook: React.FC = () => {
+  const { theme } = useContext(AppContext);
+  const {
+    token: { colorError, colorPrimary, colorBgBase, colorWarning, colorSplit },
+  } = antdTheme.useToken();
   const [selectedFruit, setSelectedFruit] = useState<Fruit | null>(null);
   const gridRef = useRef<GridApi<Fruit>>(null);
 
@@ -147,6 +148,32 @@ export const FruitBook: React.FC = () => {
     }
   };
 
+  const columnDefs: ColDef[] = React.useMemo(
+    () => [
+      { headerName: "ID", field: "id", minWidth: 90 },
+      { headerName: "Fruit", field: "name", minWidth: 120 },
+      { headerName: "Country", field: "country", minWidth: 120 },
+      { headerName: "Type", field: "type", minWidth: 120 },
+      {
+        headerName: "Status",
+        field: "status",
+        minWidth: 120,
+        cellStyle: (params: { value: string }) => ({
+          color:
+            params.value === "Available"
+              ? colorPrimary
+              : params.value === "Pending"
+              ? colorWarning
+              : colorError,
+          fontWeight: 700,
+          background: colorBgBase,
+        }),
+      },
+      { headerName: "Details", field: "details", minWidth: 180 },
+    ],
+    [colorBgBase]
+  );
+
   return (
     <>
       <div style={{ padding: 0, background: "#232b3e", height: "100%" }}>
@@ -155,13 +182,14 @@ export const FruitBook: React.FC = () => {
           style={{
             height: "100%",
             width: "100%",
-            border: "1px solid #7c5fe6",
+            // border: "1px solid #7c5fe6",
           }}
         >
           <AgGridReact<Fruit>
             onGridReady={(e) => {
               gridRef.current = e.api;
             }}
+            theme={theme === "dark" ? darkTheme : lightTheme}
             rowData={fruits}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
@@ -173,21 +201,16 @@ export const FruitBook: React.FC = () => {
             getRowStyle={(params) => {
               if (selectedFruit && params.data?.id === selectedFruit.id) {
                 return {
-                  fontFamily: "monospace",
-                  fontSize: 16,
-                  color: "#fff",
-                  background: "#7c5fe6",
-                };
+                  background: colorPrimary,
+                } as RowStyle;
               }
               return {
-                fontFamily: "monospace",
-                fontSize: 16,
-                color: "#f5f5f5",
                 background:
-                  params.node.rowIndex && params.node.rowIndex % 2 === 0
-                    ? "#232b3e"
-                    : "#262f47",
-              };
+                  params.node.rowIndex !== null &&
+                  params.node.rowIndex % 2 === 0
+                    ? colorBgBase
+                    : colorSplit,
+              } as RowStyle;
             }}
             suppressCellFocus={true}
           />
