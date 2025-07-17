@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   theme,
   Form,
@@ -11,6 +11,7 @@ import {
 } from "antd";
 import { MockFruitMachine } from "../mock/FruitMachine";
 import type { Fruit } from "../mock/FruitMachine";
+import { AppContext } from "../context/app";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -21,6 +22,7 @@ const machine = new MockFruitMachine();
 
 export const FruitViewPanel: React.FC = () => {
   const { token } = useToken();
+  const { theme } = useContext(AppContext);
   const [inventory, setInventory] = useState(machine.getInventory());
   const [selectedFruit, setSelectedFruit] = useState<Fruit>("apple");
   const [amount, setAmount] = useState(1);
@@ -87,9 +89,9 @@ export const FruitViewPanel: React.FC = () => {
             strong
             style={{
               color: message.startsWith("Bought")
-                ? "#52c41a"
+                ? token.colorSuccess
                 : message.startsWith("Not enough")
-                ? "#f5222d"
+                ? token.colorError
                 : undefined,
             }}
           >
@@ -105,7 +107,12 @@ export const FruitViewPanel: React.FC = () => {
         dataSource={fruitList}
         renderItem={(fruit) => (
           <List.Item style={{ padding: "4px 0" }}>
-            <Text style={{ color: token.colorPrimaryText, fontSize: 16 }}>
+            <Text
+              style={{
+                color: theme === "dark" ? token.colorWarning : token.colorInfo,
+                fontSize: 16,
+              }}
+            >
               {fruit}: <Text strong>{inventory[fruit]}</Text>
             </Text>
           </List.Item>
