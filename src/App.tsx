@@ -163,8 +163,7 @@ export const App: React.FC = () => {
             block
             onClick={() => setLoggedIn(false)}
           >
-            <LogoutOutlined />{" "}
-            Log Out
+            <LogoutOutlined /> Log Out
           </Button>
         ),
         key: "logout",
@@ -293,12 +292,15 @@ export const App: React.FC = () => {
                   trigger={["click"]}
                   popupRender={(menu) => (
                     <div style={contentStyle}>
-                      <Space style={{ padding: 8}} direction="vertical">
-                        <Typography.Text>Welcome, <strong>{userData?.user}</strong></Typography.Text>
-                        <Typography.Text strong type="secondary">{userData?.email}</Typography.Text>
+                      <Space style={{ padding: 8 }} direction="vertical">
+                        <Typography.Text>
+                          Welcome, <strong>{userData?.user}</strong>
+                        </Typography.Text>
+                        <Typography.Text strong type="secondary">
+                          {userData?.email}
+                        </Typography.Text>
                       </Space>
-                      
-                      
+
                       <Divider style={{ margin: 0 }} />
                       {React.cloneElement(
                         menu as React.ReactElement<{
@@ -329,6 +331,7 @@ export const App: React.FC = () => {
                 rowHeight={70}
                 layouts={layouts}
                 onDropDragOver={() => ({ w: 6, h: 5 })}
+                onLayoutChange={(_, layouts) => setLayouts(layouts)}
                 breakpoints={{ xxs: 0 }}
                 cols={{ xxs: 12 }}
                 measureBeforeMount={false}
