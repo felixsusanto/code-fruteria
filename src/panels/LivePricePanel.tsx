@@ -22,20 +22,9 @@ import pineapple from "../assets/images/pineapple.png";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import seed from "seed-random";
 import { createNoise2D } from "simplex-noise";
+import type { FruitName } from "../types/fruit";
 
 interface LivePricePanelProps {}
-
-type FruitName =
-  | "Banana"
-  | "Apple"
-  | "Orange"
-  | "Kiwi"
-  | "Mango"
-  | "Pineapple"
-  | "Grape"
-  | "Pear"
-  | "Lime"
-  | "Papaya";
 
 interface FruitData {
   name: FruitName;

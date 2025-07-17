@@ -21,6 +21,7 @@ import {
   Layout,
   Menu,
   Space,
+  Tag,
   theme,
   Typography,
   type MenuProps,
@@ -35,12 +36,14 @@ import Icon, {
   UserOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
-import { CandlestickChart } from "./components/CandlestickChart";
-import { Header, Content } from "antd/es/layout/layout";
+import { CandlestickChart, fruitBase } from "./components/CandlestickChart";
+import { Header, Content, Footer } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { FullHeightWrapper } from "./components/UtilityComponent";
 import { ThemeToggleButton } from "./components/ThemeToggleButton";
 import LivePricePanel from "./panels/LivePricePanel";
+import Marquee from "react-fast-marquee";
+import type { FruitName } from "./types/fruit";
 
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -127,6 +130,7 @@ export const App: React.FC = () => {
       colorBgElevated,
       borderRadiusLG,
       boxShadowSecondary,
+      boxShadow,
     },
   } = theme.useToken();
   // Inactivity logout timer
@@ -255,7 +259,7 @@ export const App: React.FC = () => {
                   />
                 ),
               },
-              { 
+              {
                 key: "5",
                 icon: <SlidersTwoTone />,
                 extra: (
@@ -291,7 +295,7 @@ export const App: React.FC = () => {
                   strong
                   style={{ fontSize: fontSizeHeading4 }}
                 >
-                  FRUTERIA
+                  🍌 FRUTERIA
                 </Typography.Text>
               </Flex>
               <Flex align="center" style={{ paddingRight: paddingLG }}>
@@ -420,8 +424,53 @@ export const App: React.FC = () => {
               </ResponsiveReactGridLayout>
             </GridLayoutWrapper>
           </Content>
+          <Footer
+            style={{ background: colorBgContainer, boxShadow: boxShadow }}
+          >
+            <Ticker />
+          </Footer>
         </Layout>
       </Layout>
     </FullHeightWrapper>
+  );
+};
+
+const news: Record<FruitName, string> = {
+  Apple: "🍎 prices soar as new varieties hit the market!",
+  Banana: "🍌 prices surge as demand for smoothies skyrockets!",
+  Orange: "🍊 juice sales spike during summer months.",
+  Kiwi: "🥝 farmers report record yields this season.",
+  Mango: "🥭 prices stabilize after last year's fluctuations.",
+  Pineapple: "🍍 production faces challenges due to weather.",
+  Grape: "🍇 harvest yields the sweetest fruit in decades.",
+  Pear: "🍐 exports to Europe increase significantly.",
+  Lime: "🍋 prices drop as supply stabilizes after drought.",
+  Papaya: "🥭 growers innovate with new farming techniques.",
+};
+
+const Ticker: React.FC = () => {
+  const appTheme = React.useContext(AppContext).theme;
+  const { token } = theme.useToken();
+  return (
+    <Marquee
+      gradient={false}
+      direction="left"
+      gradientColor={token.colorBgContainer}
+      speed={30}
+      style={{
+        color: token.colorText,
+        fontSize: token.fontSize,
+        padding: "0 16px",
+      }}
+    >
+      {Object.entries(news).map(([key, value], index) => {
+        return (
+          <span key={index} style={{ marginRight: 32 }}>
+            <strong style={{ color: appTheme === "dark" ? token.colorWarning : token.colorPrimary }}>{key.toUpperCase()}</strong>{" "}
+            <Tag color="green">AVG ${fruitBase[key as FruitName].avg}</Tag> {value}
+          </span>
+        );
+      })}
+    </Marquee>
   );
 };
