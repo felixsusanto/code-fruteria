@@ -1,11 +1,14 @@
 import type { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import React from "react";
+import React, { useContext } from "react";
 import type { Fruit } from "./FruitBookPanel";
+import { agGridDarkTheme, agGridLightTheme } from "../theme/theme";
+import { AppContext } from "../context/app";
 
 export const EnrichmentPanel: React.FC<{
   selectedFruit: null | Fruit;
 }> = (props) => {
+  const { theme } = useContext(AppContext);
   const columnDefs = React.useMemo<ColDef[]>(() => {
     return [
       {
@@ -30,8 +33,9 @@ export const EnrichmentPanel: React.FC<{
     [props.selectedFruit]
   );
   return (
-    <div className="ag-theme-alpine" style={{ height: 200 }}>
+    <div style={{ height: 270 }}>
       <AgGridReact
+        theme={theme === "dark" ? agGridDarkTheme: agGridLightTheme}
         columnDefs={columnDefs}
         rowData={rowData}
         defaultColDef={{ width: 100, flex: 1 }}

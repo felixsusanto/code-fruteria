@@ -3,8 +3,6 @@ import { AgGridReact } from "ag-grid-react";
 import {
   ModuleRegistry,
   AllCommunityModule,
-  themeAlpine,
-  colorSchemeDarkBlue,
 } from "ag-grid-community";
 import type {
   ColDef,
@@ -13,10 +11,9 @@ import type {
   RowStyle,
 } from "ag-grid-community";
 import { Drawer, theme as antdTheme } from "antd";
-// import "ag-grid-community/styles/ag-grid.css";
-// import "ag-grid-community/styles/ag-theme-alpine.css";
 import { EnrichmentPanel } from "./EnrichmentPanel";
 import { AppContext } from "../context/app";
+import { agGridDarkTheme, agGridLightTheme } from "../theme/theme";
 
 // Register ag-grid modules (required for module-based builds)
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -30,16 +27,6 @@ export interface Fruit {
   details: string;
 }
 
-const params = {
-  fontFamily: "monospace",
-  headerFontWeight: 700,
-};
-
-const darkTheme = themeAlpine.withPart(colorSchemeDarkBlue).withParams({
-  ...params,
-  borderRadius: 0,
-});
-const lightTheme = themeAlpine.withParams({ ...params, borderRadius: 0 });
 
 const fruits: Fruit[] = [
   {
@@ -189,7 +176,7 @@ export const FruitBook: React.FC = () => {
             onGridReady={(e) => {
               gridRef.current = e.api;
             }}
-            theme={theme === "dark" ? darkTheme : lightTheme}
+            theme={theme === "dark" ? agGridDarkTheme : agGridLightTheme}
             rowData={fruits}
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}

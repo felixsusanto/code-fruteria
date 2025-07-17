@@ -1,6 +1,7 @@
 import type { AgChartOptions } from "ag-charts-enterprise";
 import { AgCharts } from "ag-charts-react";
 import React, { useState } from "react";
+import { AppContext } from "../context/app";
 
 interface HistoricValue {
   date: string;
@@ -22,6 +23,7 @@ interface CandlestickChartProps {
   fruit: string;
 }
 export const CandlestickChart: React.FC<CandlestickChartProps> = (props) => {
+  const { theme } = React.useContext(AppContext);
   React.useEffect(() => {
     getData().then((data) => {
       const newData = data.map((o) => ({
@@ -31,8 +33,15 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = (props) => {
       setOptions((prev) => ({ ...prev, data: newData }));
     });
   }, []);
+  React.useEffect(() => {
+    setOptions((prev) => ({
+      ...prev,
+      theme: theme === "dark" ? "ag-default-dark" : "ag-default",
+    }));
+  }, [theme]);
+
   const [options, setOptions] = useState<AgChartOptions>({
-    theme: "ag-default-dark",
+    theme: theme === "dark" ? "ag-default-dark" : "ag-default",
     title: {
       text: props.fruit + " Historic Prices",
     },
