@@ -1,9 +1,8 @@
 import React, { useState, useRef, useContext } from "react";
 import { AgGridReact } from "ag-grid-react";
-import {
-  ModuleRegistry,
-  AllCommunityModule,
-} from "ag-grid-community";
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+import { SparklinesModule } from "ag-grid-enterprise";
+import { AgChartsEnterpriseModule } from "ag-charts-enterprise";
 import type {
   ColDef,
   RowDoubleClickedEvent,
@@ -16,7 +15,10 @@ import { AppContext } from "../context/app";
 import { agGridDarkTheme, agGridLightTheme } from "../theme/theme";
 
 // Register ag-grid modules (required for module-based builds)
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  SparklinesModule.with(AgChartsEnterpriseModule),
+]);
 
 export interface Fruit {
   id: string;
@@ -26,7 +28,6 @@ export interface Fruit {
   status: string;
   details: string;
 }
-
 
 const fruits: Fruit[] = [
   {

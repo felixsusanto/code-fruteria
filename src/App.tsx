@@ -40,6 +40,7 @@ import { Header, Content } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { FullHeightWrapper } from "./components/UtilityComponent";
 import { ThemeToggleButton } from "./components/ThemeToggleButton";
+import LivePricePanel from "./panels/LivePricePanel";
 
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -254,6 +255,19 @@ export const App: React.FC = () => {
                   />
                 ),
               },
+              { 
+                key: "5",
+                icon: <SlidersTwoTone />,
+                extra: (
+                  <ExtraElement
+                    isDragged={dragNavPanelKey === "live"}
+                    onDragStart={onNavDragStart("live")}
+                    onDragEnd={onDragEnd}
+                    title="Live Price"
+                    id="live"
+                  />
+                ),
+              },
             ]}
           />
         </Sider>
@@ -353,12 +367,14 @@ export const App: React.FC = () => {
                     fruitview: <FruitViewPanel />,
                     historic: <CandlestickChart fruit="Banana" />,
                     about: <AboutPanel />,
+                    live: <LivePricePanel />,
                   };
                   const mapToTitle: Record<string, string> = {
                     fruitbook: "Fruit Book",
                     fruitview: "Fruit View",
                     historic: "Historic Price",
                     about: "About",
+                    live: "Live Price",
                   };
                   return (
                     <div key={w.id} style={{ overflow: "hidden" }}>
