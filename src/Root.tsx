@@ -64,8 +64,15 @@ const Root: React.FC = () => {
   useEffect(() => {
     if (loggedIn) {
       localStorage.setItem("isLoggedIn", "true");
+      if (!userData) {
+        const storedUserData = localStorage.getItem("userData");
+        if (storedUserData) {
+          setUserData(JSON.parse(storedUserData));
+        }
+      }
     } else {
       localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("userData");
       setUserData(undefined);
     }
   }, [loggedIn]);
@@ -113,6 +120,7 @@ const Root: React.FC = () => {
           <LoginComponent
             onLoginSuccess={(u) => {
               setUserData(u);
+              localStorage.setItem("userData", JSON.stringify(u));
               setLoggedIn(true);
             }}
           />
