@@ -7,6 +7,7 @@ import FruitViewIcon from "./Icons/FruitViewIcon";
 import AboutPanel from "./panels/AboutPanel";
 import { FruitBook } from "./panels/FruitBookPanel";
 import { FruitViewPanel } from "./panels/FruitViewPanel";
+import fruitLady from "./assets/images/avatar2.png";
 import "ag-charts-enterprise";
 import { Responsive, WidthProvider, type Layouts } from "react-grid-layout";
 import "/node_modules/react-grid-layout/css/styles.css";
@@ -131,6 +132,7 @@ export const App: React.FC = () => {
       borderRadiusLG,
       boxShadowSecondary,
       boxShadow,
+      colorTextSecondary
     },
   } = theme.useToken();
   // Inactivity logout timer
@@ -185,7 +187,7 @@ export const App: React.FC = () => {
     backgroundColor: colorBgElevated,
     borderRadius: borderRadiusLG,
     boxShadow: boxShadowSecondary,
-    width: 200,
+    width: 300,
   };
   const menuStyle: React.CSSProperties = {
     boxShadow: "none",
@@ -295,7 +297,7 @@ export const App: React.FC = () => {
                   strong
                   style={{ fontSize: fontSizeHeading4 }}
                 >
-                  🍌 FRUTERIA
+                  🍌 FRUTERIA 2.0
                 </Typography.Text>
               </Flex>
               <Flex align="center" style={{ paddingRight: paddingLG }}>
@@ -309,15 +311,20 @@ export const App: React.FC = () => {
                   menu={{ items }}
                   trigger={["click"]}
                   popupRender={(menu) => (
-                    <div style={contentStyle}>
-                      <Space style={{ padding: 8 }} direction="vertical">
-                        <Typography.Text>
-                          Welcome, <strong>{userData?.user}</strong>
-                        </Typography.Text>
-                        <Typography.Text strong type="secondary">
-                          {userData?.email}
-                        </Typography.Text>
-                      </Space>
+                    <div style={{...contentStyle, padding: 8}}>
+                      <Flex align="center" style={{ padding: 8 }}>
+                        <Avatar
+                          size={52}
+                          src={<img src={fruitLady} />}
+                          style={{ marginRight: 8 }}
+                        />
+                        <Space style={{ padding: 0 }} direction="vertical">
+                          <Typography.Text>
+                            Welcome, <strong>{userData?.user}</strong><br />
+                            <span style={{color: colorTextSecondary}}>{userData?.email}</span>
+                          </Typography.Text>
+                        </Space>
+                      </Flex>
 
                       <Divider style={{ margin: 0 }} />
                       {React.cloneElement(
@@ -329,7 +336,7 @@ export const App: React.FC = () => {
                     </div>
                   )}
                 >
-                  <Avatar size={"default"} icon={<UserOutlined />} />
+                  <Avatar size={"default"} src={<img src={fruitLady} />} style={{ cursor: "pointer"}} />
                 </Dropdown>
               </Flex>
             </Flex>
