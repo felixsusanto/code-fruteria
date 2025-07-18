@@ -18,6 +18,6 @@ describe("<Root />", () => {
     expect(LoginComponent).toHaveBeenCalled();
     const [{ onLoginSuccess }] = LoginComponent.mock.lastCall ?? [];
     expect(onLoginSuccess).toBeDefined();
-    act(() => onLoginSuccess());
+    act(() => onLoginSuccess({ user: "user", email: "email" }));
   });
 });

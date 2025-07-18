@@ -3,6 +3,7 @@ import { App } from "./App";
 import { AppContext } from "./context/app";
 
 // Mock dependencies
+jest.mock("./components/Ticker", () => ({ Ticker: () => null}));
 jest.mock("./Icons/AboutIcon", () => () => <span data-testid="about-icon" />);
 jest.mock("./Icons/TermsIcon", () => () => <span data-testid="terms-icon" />);
 jest.mock("./Icons/FruitViewIcon", () => () => <span data-testid="fruitview-icon" />);
@@ -55,6 +56,7 @@ jest.mock("antd", () => {
 });
 jest.mock("antd/es/layout/layout", () => ({
   Header: ({ children }: any) => <div data-testid="header">{children}</div>,
+  Footer: ({ children }: any) => <div data-testid="footer">{children}</div>,
   Content: ({ children }: any) => <div data-testid="content">{children}</div>,
 }));
 jest.mock("antd/es/layout/Sider", () => ({ children }: any) => <div data-testid="sider">{children}</div>);
@@ -102,13 +104,13 @@ describe("App", () => {
     renderApp();
     expect(screen.getByText(/No panels open/i)).toBeInTheDocument();
     expect(screen.getByText(/Drag one from the navigation bar/i)).toBeInTheDocument();
-  });
+  }); 
 
   it("toggles theme when theme button is clicked", () => {
     renderApp();
     fireEvent.click(screen.getByTestId("theme-toggle"));
     expect(mockSetTheme).toHaveBeenCalledWith("dark");
-  });
+  }); 
 
   it("logs out after inactivity", () => {
     const removeItemSpy = jest.spyOn(window.localStorage.__proto__, "removeItem");

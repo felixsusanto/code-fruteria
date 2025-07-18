@@ -4,6 +4,10 @@ import { AgGridReact as agr } from "ag-grid-react";
 
 const AgGridReact = agr as unknown as jest.Mock;
 jest.mock("./EnrichmentPanel");
+jest.mock("../theme/theme", () => ({
+  agGridDarkTheme: null,
+  agGridLightTheme: null,
+}));
 jest.mock("ag-grid-community");
 jest.mock("ag-grid-react", () => {
   return {

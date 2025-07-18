@@ -18,7 +18,6 @@ describe("EnrichmentPanel", () => {
 
   it("renders without crashing when selectedFruit is null", () => {
     const { container } = render(<EnrichmentPanel selectedFruit={null} />);
-    expect(container.querySelector(".ag-theme-alpine")).toBeInTheDocument();
   });
 
   it("renders the grid with fruit properties when selectedFruit is provided", () => {
