@@ -9,9 +9,9 @@ import { FruitBook } from "./panels/FruitBookPanel";
 import { FruitViewPanel } from "./panels/FruitViewPanel";
 import fruitLady from "./assets/images/avatar2.png";
 import "ag-charts-enterprise";
-import { Responsive, WidthProvider, type Layouts } from "react-grid-layout";
-import "/node_modules/react-grid-layout/css/styles.css";
-import "/node_modules/react-resizable/css/styles.css";
+import { Responsive, WidthProvider, type Layouts, type Layout as GridLayout } from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 import {
   Avatar,
   Button,
@@ -109,10 +109,14 @@ const ExtraElement: React.FC<ExtraElementProps> = (props) => {
   );
 };
 
-export const App: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+type PanelKey = "fruitbook" | "fruitview" | "about" | "historic" | "live";
 
-  const [dragNavPanelKey, setDragNavPanelKey] = useState<string | null>(null);
+const defaultPanelSize = { w: 6, h: 5 };
+
+export const App: React.FC = () => {
+  const mutablePanelSizeRef = React.useRef(defaultPanelSize);
+  const [collapsed, setCollapsed] = useState(false);
+  const [dragNavPanelKey, setDragNavPanelKey] = useState<PanelKey | null>(null);
   const [layouts, setLayouts] = useState<Layouts>({ xxs: [] });
   const [widgets, setWidgets] = useState<Widget[]>([]);
   const {
@@ -176,8 +180,12 @@ export const App: React.FC = () => {
     ],
     []
   );
-  const onNavDragStart = (key: string) => (e: DragEvent<HTMLSpanElement>) => {
+  const onNavDragStart = (key: PanelKey) => (e: DragEvent<HTMLSpanElement>) => {
     setDragNavPanelKey(key);
+    if (key === "fruitbook") mutablePanelSizeRef.current = { w: 7, h: 7 };
+    if (key === "historic") mutablePanelSizeRef.current = { w: 8, h: 6 };
+    if (key === "about") mutablePanelSizeRef.current = { w: 4, h: 6 };
+    if (key === "live") mutablePanelSizeRef.current = { w: 5, h: 7 };
     e.dataTransfer.setData("panelKey", key);
   };
   const onDragEnd = React.useCallback(() => setDragNavPanelKey(null), []);
@@ -358,21 +366,29 @@ export const App: React.FC = () => {
               <ResponsiveReactGridLayout
                 isDroppable
                 draggableHandle=".ant-card-head-title"
-                rowHeight={70}
+                rowHeight={75}
                 layouts={layouts}
-                onDropDragOver={() => ({ w: 6, h: 5 })}
-                onLayoutChange={(_, layouts) => setLayouts(layouts)}
+                onDropDragOver={() => mutablePanelSizeRef.current}
+                onLayoutChange={(_, layouts) => {
+                  setLayouts(layouts);
+                }}
                 breakpoints={{ xxs: 0 }}
                 cols={{ xxs: 12 }}
                 measureBeforeMount={false}
                 onDrop={(_, item, e) => {
+                  mutablePanelSizeRef.current = defaultPanelSize;
                   const event = e as unknown as DragEvent;
                   const id = `${Date.now()}`;
                   const panelType = event.dataTransfer.getData("panelKey");
                   const newItem = { ...item, i: id };
-                  setLayouts((prev) => ({
-                    xxs: [...prev.xxs, newItem],
-                  }));
+                  setLayouts((prev) => {
+                    const filteredPrev = prev.xxs.filter((o) => o.i !== "__dropping-elem__");
+                    const t = {
+                      xxs: deconflictLayouts([newItem, ...filteredPrev], 12),
+                    };
+                    console.log(t);
+                    return t;
+                  });
                   setWidgets((prev) => [...prev, { id, key: panelType }]);
                 }}
                 style={{ flex: 1 }}
@@ -447,3 +463,32 @@ export const App: React.FC = () => {
   );
 };
 
+export function deconflictLayouts(layouts: GridLayout[], totalCols: number): GridLayout[] {
+  // Deep copy to avoid mutation
+  const result: GridLayout[] = [];
+  for (const item of layouts) {
+    // Find the next available y position if there's a conflict
+    let { x, y, w, h } = item;
+    let conflict: boolean;
+    do {
+      conflict = false;
+      for (const placed of result) {
+        // Check for overlap
+        const xOverlap = x < placed.x + placed.w && x + w > placed.x;
+        const yOverlap = y < placed.y + placed.h && y + h > placed.y;
+        if (xOverlap && yOverlap) {
+          // Move item down below the conflicting panel
+          y = placed.y + placed.h;
+          conflict = true;
+          break;
+        }
+      }
+    } while (conflict);
+
+    // Clamp x to grid if needed
+    if (x + w > totalCols) x = Math.max(0, totalCols - w);
+
+    result.push({ ...item, x, y });
+  }
+  return result;
+}

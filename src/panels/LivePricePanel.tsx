@@ -108,6 +108,7 @@ const LivePricePanel: React.FC = () => {
           width: 170,
           field: "value",
           cellStyle: { textAlign: "right" },
+          flex: 1,
           cellRenderer: (params: ICellRendererParams) => {
             const value = params.value as
               | { current: number; delta: number }
