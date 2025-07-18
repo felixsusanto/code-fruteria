@@ -86,3 +86,21 @@
   - [x] Document any migration steps or gotchas you encounter.
   - [ ] Compare build/start times before and after the migration.
   - [ ] Share your favorite Vite plugin for React projects!
+
+### 🍌 Fruteria 2.0
+
+While waiting for feedback, I added extra functionality and improvements. Feel free to check out the `for-fun` branch for additional features and experiments!
+
+![Screenshot of Unit Test Coverage](./src/images/fruteria2.gif)
+
+#### Improvements
+
+1. Enhanced theming by leveraging existing `antd` components for seamless integration.
+2. Applied custom theming to `ag-grid` for a consistent look and feel.
+3. Introduced new widgets:
+   - **Live Price View**
+   - **Historical Data Charts**
+   - **Footer ticker** displaying live prices
+4. Implemented a mock stream for live price updates.
+5. Generated realistic chart data procedurally using `simplex-noise`.
+6. Added images for extra visual appeal, including profile pictures and icons in the Live Price
