@@ -29,12 +29,14 @@ import {
 } from "antd";
 import { produce } from "immer";
 import Icon, {
+  CaretDownFilled,
+  CaretUpFilled,
   CloseOutlined,
   HolderOutlined,
+  LayoutTwoTone,
   LogoutOutlined,
   MenuOutlined,
   SlidersTwoTone,
-  UserOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { CandlestickChart, fruitBase } from "./components/CandlestickChart";
@@ -45,6 +47,7 @@ import { ThemeToggleButton } from "./components/ThemeToggleButton";
 import LivePricePanel from "./panels/LivePricePanel";
 import Marquee from "react-fast-marquee";
 import type { FruitName } from "./types/fruit";
+import { hot$ } from "./stream/livePrice";
 
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -132,7 +135,7 @@ export const App: React.FC = () => {
       borderRadiusLG,
       boxShadowSecondary,
       boxShadow,
-      colorTextSecondary
+      colorTextSecondary,
     },
   } = theme.useToken();
   // Inactivity logout timer
@@ -263,7 +266,7 @@ export const App: React.FC = () => {
               },
               {
                 key: "5",
-                icon: <SlidersTwoTone />,
+                icon: <LayoutTwoTone />,
                 extra: (
                   <ExtraElement
                     isDragged={dragNavPanelKey === "live"}
@@ -311,7 +314,7 @@ export const App: React.FC = () => {
                   menu={{ items }}
                   trigger={["click"]}
                   popupRender={(menu) => (
-                    <div style={{...contentStyle, padding: 8}}>
+                    <div style={{ ...contentStyle, padding: 8 }}>
                       <Flex align="center" style={{ padding: 8 }}>
                         <Avatar
                           size={52}
@@ -320,8 +323,11 @@ export const App: React.FC = () => {
                         />
                         <Space style={{ padding: 0 }} direction="vertical">
                           <Typography.Text>
-                            Welcome, <strong>{userData?.user}</strong><br />
-                            <span style={{color: colorTextSecondary}}>{userData?.email}</span>
+                            Welcome, <strong>{userData?.user}</strong>
+                            <br />
+                            <span style={{ color: colorTextSecondary }}>
+                              {userData?.email}
+                            </span>
                           </Typography.Text>
                         </Space>
                       </Flex>
@@ -336,7 +342,11 @@ export const App: React.FC = () => {
                     </div>
                   )}
                 >
-                  <Avatar size={"default"} src={<img src={fruitLady} />} style={{ cursor: "pointer"}} />
+                  <Avatar
+                    size={"default"}
+                    src={<img src={fruitLady} />}
+                    style={{ cursor: "pointer" }}
+                  />
                 </Dropdown>
               </Flex>
             </Flex>
@@ -376,7 +386,7 @@ export const App: React.FC = () => {
                   const mapToComp: Record<string, React.ReactNode> = {
                     fruitbook: <FruitBook />,
                     fruitview: <FruitViewPanel />,
-                    historic: <CandlestickChart fruit="Banana" />,
+                    historic: <CandlestickChart />,
                     about: <AboutPanel />,
                     live: <LivePricePanel />,
                   };
@@ -457,24 +467,62 @@ const news: Record<FruitName, string> = {
 
 const Ticker: React.FC = () => {
   const appTheme = React.useContext(AppContext).theme;
+  const [livePrice, setLivePrice] = React.useState<Record<FruitName, [price: number, isPositive: boolean]>>({
+    Banana: [NaN, false],
+    Apple: [NaN, false],
+    Orange: [NaN, false],
+    Kiwi: [NaN, false],
+    Mango: [NaN, false],
+    Pineapple: [NaN, false],
+    Grape: [NaN, false],
+    Pear: [NaN, false],
+    Lime: [NaN, false],
+    Papaya: [NaN, false],
+  });
   const { token } = theme.useToken();
+  React.useEffect(() => {
+    const sub = hot$.subscribe((data) => {
+      if (!data) return;
+      const entries = data.map((o) => [
+        o.name as FruitName,
+        [o.value?.current ?? NaN, o.value ? o.value.delta > 0 : false],
+      ]) as Array<[FruitName, [number, boolean]]>;
+      setLivePrice((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
+    });
+    return () => sub.unsubscribe();
+  }, []);
   return (
     <Marquee
-      gradient={false}
+      pauseOnHover
+      gradient
       direction="left"
       gradientColor={token.colorBgContainer}
       speed={30}
       style={{
         color: token.colorText,
         fontSize: token.fontSize,
-        padding: "0 16px",
       }}
     >
       {Object.entries(news).map(([key, value], index) => {
         return (
           <span key={index} style={{ marginRight: 32 }}>
-            <strong style={{ color: appTheme === "dark" ? token.colorWarning : token.colorPrimary }}>{key.toUpperCase()}</strong>{" "}
-            <Tag color="green">AVG ${fruitBase[key as FruitName].avg}</Tag> {value}
+            <strong
+              style={{
+                color:
+                  appTheme === "dark" ? token.colorWarning : token.colorPrimary,
+              }}
+            >
+              {key.toUpperCase()}
+            </strong>{" "}
+            {Number.isNaN(livePrice[key as FruitName][0]) ? (
+              <Tag color="green">AVG ${fruitBase[key as FruitName].avg}</Tag>
+            ) : (
+              <Tag color={livePrice[key as FruitName][1] ? "green" : "red"}>
+                {livePrice[key as FruitName][1] ? <CaretUpFilled /> : <CaretDownFilled />}{" "}
+                LIVE ${livePrice[key as FruitName][0].toFixed(2)}
+              </Tag>
+            )}
+            {" "}{value.toUpperCase()}
           </span>
         );
       })}

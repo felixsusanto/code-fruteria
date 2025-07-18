@@ -2,7 +2,6 @@ import React from "react";
 import { AgGridReact, type AgGridReactProps } from "ag-grid-react";
 import { agGridDarkTheme, agGridLightTheme } from "../theme/theme";
 import {
-  type ColDef,
   type GridApi,
   type ICellRendererParams,
   type RowStyle,
@@ -20,11 +19,9 @@ import papaya from "../assets/images/papaya.png";
 import pear from "../assets/images/pear.png";
 import pineapple from "../assets/images/pineapple.png";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import seed from "seed-random";
-import { createNoise2D } from "simplex-noise";
 import type { FruitName } from "../types/fruit";
 
-interface LivePricePanelProps {}
+import { fruitsBase, hot$ } from "../stream/livePrice";
 
 interface FruitData {
   name: FruitName;
@@ -52,139 +49,20 @@ const fruitAvatars: AvatarInfo = {
   Papaya: papaya,
 };
 
-const fruitsBase: Record<FruitName, Partial<FruitData>> = {
-  Banana: {
-    name: "Banana",
-    country: "Ecuador",
-    type: "Tropical",
-  },
-  Apple: {
-    name: "Apple",
-    country: "Spain",
-    type: "Temperate",
-  },
-  Orange: {
-    name: "Orange",
-    country: "Morocco",
-    type: "Citrus",
-  },
-  Kiwi: {
-    name: "Kiwi",
-    country: "New Zealand",
-    type: "Berry",
-  },
-  Mango: {
-    name: "Mango",
-    country: "Peru",
-    type: "Tropical",
-  },
-  Pineapple: {
-    name: "Pineapple",
-    country: "Costa Rica",
-    type: "Tropical",
-  },
-  Grape: {
-    name: "Grape",
-    country: "Italy",
-    type: "Berry",
-  },
-  Pear: {
-    name: "Pear",
-    country: "Argentina",
-    type: "Temperate",
-  },
-  Lime: {
-    name: "Lime",
-    country: "Mexico",
-    type: "Citrus",
-  },
-  Papaya: {
-    name: "Papaya",
-    country: "Brazil",
-    type: "Tropical",
-  },
-};
-
-function* mockGeneratorFruitData(
-  fruitName: FruitName,
-  base: number,
-  diff: number
-): Generator<FruitData> {
-  const fruitData = fruitsBase[fruitName];
-  let index = 0;
-  const div = 10;
-  const prng = seed(fruitName);
-  const simplexNoise = createNoise2D(prng);
-  while (true) {
-    index++;
-    const prevValue = simplexNoise((index - 1) / div, 0) * diff + base;
-    const value = simplexNoise(index / div, 0) * diff + base;
-    fruitData.value = {
-      current: value,
-      delta: value - prevValue,
-    };
-    const arrLen = 10;
-    fruitData.timeline = Array.from({ length: arrLen }, (_, i) => {
-      const dayIndex = index - i;
-      return simplexNoise(dayIndex / div, 0) * diff + base;
-    }).reverse();
-    // Simulate fetching data
-
-    yield fruitData as FruitData;
-  }
-}
-
-function* arrayMockGenerator() {
-  const baseValues: Record<FruitName, [base: number, diff: number]> = {
-    Banana: [20, 10],
-    Apple: [35, 30],
-    Orange: [37.5, 10],
-    Kiwi: [55, 20],
-    Mango: [45, 30],
-    Pineapple: [35, 10],
-    Grape: [50, 20],
-    Pear: [35, 20],
-    Lime: [45, 15],
-    Papaya: [37.5, 13],
-  };
-  let index = 0;
-  const generators = Object.entries(baseValues).map(
-    ([fruitName, [base, diff]]) => {
-      return mockGeneratorFruitData(fruitName as FruitName, base, diff);
-    }
-  );
-  while (true) {
-    index++;
-    yield generators
-      .map((gen) => {
-        if (Math.random() > 0.5) {
-          return gen.next().value;
-        }
-        return null;
-      })
-      .filter((v) => !!v) as FruitData[];
-  }
-}
-
-const LivePricePanel: React.FC<LivePricePanelProps> = () => {
+const LivePricePanel: React.FC = () => {
   const gridApiRef = React.useRef<GridApi<FruitData> | null>(null);
   const { theme } = React.useContext(AppContext);
   const { token } = antdTheme.useToken();
   const { colorBgBase, colorSplit } = token;
   React.useEffect(() => {
-    const generator = arrayMockGenerator();
-    const interval = setInterval(() => {
-      const data = generator.next().value;
+    const subscription = hot$.subscribe((data) => {
       const api = gridApiRef.current;
-      if (data && api) {
-        // setRowData(data);
-        api.applyTransaction({update: data});
-        // api.setGridOption("rowData", data);
-        // api.refreshCells();
-      }
-    }, 500);
-
-    return () => clearInterval(interval);
+      if (!api || !data) return;
+      api.applyTransaction({ update: data });
+    });
+    return () => {
+      subscription.unsubscribe();
+    }
   }, []);
   const gridProps = React.useMemo<AgGridReactProps>(() => {
     return {
