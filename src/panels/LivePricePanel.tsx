@@ -155,7 +155,14 @@ function* arrayMockGenerator() {
   );
   while (true) {
     index++;
-    yield generators.map((gen) => gen.next().value) as FruitData[];
+    yield generators
+      .map((gen) => {
+        if (Math.random() > 0.5) {
+          return gen.next().value;
+        }
+        return null;
+      })
+      .filter((v) => !!v) as FruitData[];
   }
 }
 
@@ -171,8 +178,9 @@ const LivePricePanel: React.FC<LivePricePanelProps> = () => {
       const api = gridApiRef.current;
       if (data && api) {
         // setRowData(data);
-        api.setGridOption("rowData", data);
-        api.refreshCells();
+        api.applyTransaction({update: data});
+        // api.setGridOption("rowData", data);
+        // api.refreshCells();
       }
     }, 500);
 
@@ -182,6 +190,7 @@ const LivePricePanel: React.FC<LivePricePanelProps> = () => {
     return {
       onGridReady: (params) => {
         gridApiRef.current = params.api;
+        params.api.setGridOption("rowData", Object.values(fruitsBase));
       },
       defaultColDef: {
         width: 120,
