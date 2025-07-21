@@ -104,3 +104,6 @@ While waiting for feedback, I added extra functionality and improvements. Feel f
 4. Implemented a mock stream for live price updates.
 5. Generated realistic chart data procedurally using `simplex-noise`.
 6. Added images for extra visual appeal, including profile pictures and icons in the Live Price
+7. Added LIVE FEED section, clicking the news ticker on the footer will activate it
+8. Live tile widget on LIVE FEED
+9. Top Stories related to fruits
