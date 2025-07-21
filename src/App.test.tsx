@@ -13,6 +13,10 @@ jest.mock("./panels/FruitViewPanel", () => ({ FruitViewPanel: () => <div>FruitVi
 jest.mock("./components/CandlestickChart", () => ({
   CandlestickChart: () => <div>CandlestickChart</div>,
 }));
+jest.mock("./components/SiderContent", () => ({
+  __esModule: true,
+  default: () => <div>Sider Content</div>
+}));
 jest.mock("./components/ThemeToggleButton", () => ({
   ThemeToggleButton: ({ onThemeToggle }: any) => (
     <button data-testid="theme-toggle" onClick={() => onThemeToggle(true)}>
@@ -112,12 +116,4 @@ describe("App", () => {
     expect(mockSetTheme).toHaveBeenCalledWith("dark");
   }); 
 
-  it("logs out after inactivity", () => {
-    const removeItemSpy = jest.spyOn(window.localStorage.__proto__, "removeItem");
-    renderApp();
-    act(() => {
-      jest.advanceTimersByTime(5 * 60 * 1000 + 1000);
-    });
-    expect(removeItemSpy).toHaveBeenCalledWith("isLoggedIn");
-  });
 });

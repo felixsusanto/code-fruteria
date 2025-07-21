@@ -28,14 +28,12 @@ import {
   Layout,
   Menu,
   Space,
-  Statistic,
   theme,
   Typography,
   type MenuProps,
 } from "antd";
 import { produce } from "immer";
 import Icon, {
-  ArrowUpOutlined,
   CloseOutlined,
   HolderOutlined,
   LayoutTwoTone,
@@ -79,8 +77,6 @@ const Info = styled.div`
   transform: translateX(-50%);
   top: 60px;
 `;
-
-const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
 
 const ExtraElementWrapper = styled.span`
   display: flex;
