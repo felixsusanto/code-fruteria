@@ -9,7 +9,12 @@ import { FruitBook } from "./panels/FruitBookPanel";
 import { FruitViewPanel } from "./panels/FruitViewPanel";
 import fruitLady from "./assets/images/avatar2.png";
 import "ag-charts-enterprise";
-import { Responsive, WidthProvider, type Layouts, type Layout as GridLayout } from "react-grid-layout";
+import {
+  Responsive,
+  WidthProvider,
+  type Layouts,
+  type Layout as GridLayout,
+} from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import {
@@ -17,17 +22,20 @@ import {
   Button,
   Card,
   Divider,
+  Drawer,
   Dropdown,
   Flex,
   Layout,
   Menu,
   Space,
+  Statistic,
   theme,
   Typography,
   type MenuProps,
 } from "antd";
 import { produce } from "immer";
 import Icon, {
+  ArrowUpOutlined,
   CloseOutlined,
   HolderOutlined,
   LayoutTwoTone,
@@ -43,6 +51,8 @@ import { FullHeightWrapper } from "./components/UtilityComponent";
 import { ThemeToggleButton } from "./components/ThemeToggleButton";
 import LivePricePanel from "./panels/LivePricePanel";
 import { Ticker } from "./components/Ticker";
+import SiderContent from "./components/SiderContent";
+import { idleDetection$ } from "./components/utility";
 
 export const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -116,6 +126,7 @@ const defaultPanelSize = { w: 6, h: 5 };
 export const App: React.FC = () => {
   const mutablePanelSizeRef = React.useRef(defaultPanelSize);
   const [collapsed, setCollapsed] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(true);
   const [dragNavPanelKey, setDragNavPanelKey] = useState<PanelKey | null>(null);
   const [layouts, setLayouts] = useState<Layouts>({ xxs: [] });
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -135,33 +146,20 @@ export const App: React.FC = () => {
       boxShadowSecondary,
       boxShadow,
       colorTextSecondary,
+      colorSplit,
+      paddingSM,
     },
   } = theme.useToken();
   // Inactivity logout timer
+
   React.useEffect(() => {
-    let timer: NodeJS.Timeout;
-
-    const resetTimer = () => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => {
-        localStorage.removeItem("isLoggedIn");
-        window.dispatchEvent(new Event("login-success"));
-      }, INACTIVITY_LIMIT);
-    };
-
-    const activityEvents = ["mousemove", "keydown", "mousedown", "touchstart"];
-    activityEvents.forEach((event) =>
-      window.addEventListener(event, resetTimer)
-    );
-    resetTimer();
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      activityEvents.forEach((event) =>
-        window.removeEventListener(event, resetTimer)
-      );
-    };
+    const subscription = idleDetection$().subscribe(() => {
+      localStorage.removeItem("isLoggedIn");
+      setLoggedIn(false);
+    });
+    return () => subscription.unsubscribe();
   }, []);
+
   const items: MenuProps["items"] = React.useMemo(
     () => [
       {
@@ -204,6 +202,7 @@ export const App: React.FC = () => {
     <FullHeightWrapper>
       <Layout style={{ height: "100%" }}>
         <Sider
+          style={{ borderRight: `1px solid ${colorSplit}` }}
           trigger={null}
           collapsible
           collapsed={collapsed}
@@ -211,7 +210,8 @@ export const App: React.FC = () => {
         >
           <Menu
             className="override-menu"
-            theme="dark"
+            // theme="dark"
+            style={{ borderRightColor: "transparent" }}
             selectable={false}
             mode="inline"
             items={[
@@ -382,7 +382,9 @@ export const App: React.FC = () => {
                   const panelType = event.dataTransfer.getData("panelKey");
                   const newItem = { ...item, i: id };
                   setLayouts((prev) => {
-                    const filteredPrev = prev.xxs.filter((o) => o.i !== "__dropping-elem__");
+                    const filteredPrev = prev.xxs.filter(
+                      (o) => o.i !== "__dropping-elem__"
+                    );
                     const t = {
                       xxs: deconflictLayouts([newItem, ...filteredPrev], 12),
                     };
@@ -455,15 +457,38 @@ export const App: React.FC = () => {
           <Footer
             style={{ background: colorBgContainer, boxShadow: boxShadow }}
           >
-            <Ticker />
+            <Ticker onTagClick={() => setOpenDrawer(true)} />
           </Footer>
         </Layout>
       </Layout>
+      <Drawer
+        styles={{
+          mask: {
+            background: "transparent",
+          },
+          body: {
+            padding: paddingSM,
+          }
+        }}
+        style={{
+          background: `${colorBgContainer}64`,//"rgba(255,255,255,0.5)",
+          backdropFilter: "saturate(180%) blur(10px)",
+        }}
+        title="LIVE FEED"
+        closable={{ "aria-label": "Close Button" }}
+        onClose={() => setOpenDrawer(false)}
+        open={openDrawer}
+      >
+        <SiderContent />
+      </Drawer>
     </FullHeightWrapper>
   );
 };
 
-export function deconflictLayouts(layouts: GridLayout[], totalCols: number): GridLayout[] {
+export function deconflictLayouts(
+  layouts: GridLayout[],
+  totalCols: number
+): GridLayout[] {
   // Deep copy to avoid mutation
   const result: GridLayout[] = [];
   for (const item of layouts) {

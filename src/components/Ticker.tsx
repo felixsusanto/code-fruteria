@@ -20,7 +20,11 @@ const news: Record<FruitName, string> = {
   Papaya: "🥭 growers innovate with new farming techniques.",
 };
 
-export const Ticker: React.FC = () => {
+interface TickerProps {
+  onTagClick: (fruitType: FruitName) => void;
+}
+
+export const Ticker: React.FC<TickerProps> = (props) => {
   const appTheme = React.useContext(AppContext).theme;
   const [livePrice, setLivePrice] = React.useState<
     Record<FruitName, [price: number, isPositive: boolean]>
@@ -62,7 +66,13 @@ export const Ticker: React.FC = () => {
     >
       {Object.entries(news).map(([key, value], index) => {
         return (
-          <span key={index} style={{ marginRight: 32 }}>
+          <span
+            key={index}
+            onClick={() => {
+              if (props.onTagClick) props.onTagClick(key as FruitName);
+            }}
+            style={{ marginRight: 32, cursor: "pointer" }}
+          >
             <strong
               style={{
                 color:

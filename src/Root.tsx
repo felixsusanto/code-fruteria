@@ -103,6 +103,9 @@ const Root: React.FC = () => {
             colorInfo: "#7c5fe6",
           },
           components: {
+            Layout: {
+              siderBg: theme === "dark" ? "#273963" : "#f5f5f5",
+            },
             Typography: {
               fontFamilyCode: "'Segoe UI', Arial, sans-serif",
             },

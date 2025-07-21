@@ -4,13 +4,17 @@ import seed from "seed-random";
 import { interval } from "rxjs";
 import { map, share } from 'rxjs/operators';
 
-interface FruitData {
+export interface FruitData {
   name: FruitName;
   country: string;
   type: string;
   value?: {
     current: number;
     delta: number;
+    deltaPositive: boolean;
+    deltaPercent: number;
+    spread: number;
+    sell: number;
   };
   timeline?: number[];
 }
@@ -82,9 +86,15 @@ function* mockGeneratorFruitData(
     index++;
     const prevValue = simplexNoise((index - 1) / div, 0) * diff + base;
     const value = simplexNoise(index / div, 0) * diff + base;
+    const spread = Math.abs(simplexNoise(index / div, 0.5));
+    const delta = value - prevValue;
     fruitData.value = {
       current: value,
-      delta: value - prevValue,
+      delta,
+      deltaPositive: delta > 0,
+      deltaPercent: delta / prevValue * 100,
+      spread,
+      sell: value - spread,
     };
     const arrLen = 10;
     fruitData.timeline = Array.from({ length: arrLen }, (_, i) => {
